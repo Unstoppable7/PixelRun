@@ -15,6 +15,7 @@ public class ButtonsPanelManager : MonoBehaviour
     //Panels
     public GameObject settingsPanel;
     public GameObject statsPanel;
+    public GameObject homePanel;
     public GameObject storePanel;
 
     //Menus
@@ -49,7 +50,14 @@ public class ButtonsPanelManager : MonoBehaviour
         backButton.SetActive(false);
     }
 
-    
+    public void PlayGame()
+    {
+        settingsPanel.SetActive(false);
+        storePanel.SetActive(false);
+        statsPanel.SetActive(false);
+        homePanel.SetActive(false);
+        mainMenu.SetActive(false);
+    }
     public void BackButton()
     {                
         if (storePanel)

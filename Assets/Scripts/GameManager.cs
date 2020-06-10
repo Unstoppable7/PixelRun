@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     //Referencia al playerMotor para saber cuando empieza a moverse
     PlayerMotor motor;
 
+    //Referencia a la camara que seguirá al jugador para centrarla cuando hay un giro
+    CameraFollow camera;
+
     //Referencia de juego iniciado
     public bool IsGameStarted { get; set; }
 
@@ -19,11 +22,11 @@ public class GameManager : MonoBehaviour
     #region Variables para la puntuacion
 
     //Propiedad a la puntuacion de cada partida
-    public float Score { get; set; }
+    public float Score { get; private set; }
     //Propiedad al nro de monedas recogidas
-    public float Coins { get; set; }
+    public float Coins { get; private set; }
     //Propiedad a la puntuacion maxima obtenida
-    public float HighScore { get; set; }
+    public float HighScore { get; private set; }
 
     #endregion
 
@@ -63,8 +66,10 @@ public class GameManager : MonoBehaviour
         IsGameStarted = false;
 
         //Asignamos la referencia al script playerMotor del jugador
-        motor = GameObject.FindGameObjectWithTag("Player")
-                .GetComponent<PlayerMotor>();
+        motor = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMotor>();
+
+        //Asignamos al script de CameraFollow de la camara
+        camera = Camera.main.GetComponent<CameraFollow>();
     }
 
     // Start is called before the first frame update
@@ -204,5 +209,40 @@ public class GameManager : MonoBehaviour
 
         //Llamo al metodo para revivir al personaje
         motor.Revive();
+    }
+
+    //Cambia la direccion del jugador
+    public void ChangePlayerDirection(int direction, float degrees){
+        motor.ChangeDirection(direction, degrees);
+    }
+
+    //Cambia la direccion del jugador
+    public void ChangeCameraDirection(int direction, float degrees){
+        StartCoroutine(camera.ChangeDirection(direction, degrees));
+    }
+
+    //Coloca al jugador exactamente en el centro despues de girar
+    public void PerfectPlayerCenter(Vector3 center){
+        motor.PerfectCenter(center);
+    }
+
+    //Centra la camara cuando gira el jugador
+    public void PerfectCameraCenter(Vector3 center){
+        camera.PerfectCenter(center);
+    }
+
+    //Retorna si el jugador está corriendo o no
+    public bool IsPlayerRunning(){
+        return motor.GetIsRunning();
+    }
+
+    //Asigna la inmunidad del jugador
+    public void SetImmunePlayer(bool isImmune){
+        motor.SetImmune(isImmune);
+    }
+
+    //Regresa si el jugador es inmune o no
+    public bool GetImmunePlayer(){
+        return motor.GetImmune();
     }
 }

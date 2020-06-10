@@ -21,9 +21,11 @@ public class PlayerMotor : MonoBehaviour
     float verticalVelocity;
     //Velocidad del personaje
     float speed = 5f;
-    //Nro del carril en el que nos estamos ubicando
-    //1 centro, +1 der, -1 izq
-    int lane = 1;
+
+    //Transform que usaremos para rotar al jugador
+    //sin afectar su movimiento hacia adelante
+    //es el primer hijo del GameObject player
+    Transform rotation;
 
     #endregion
 
@@ -40,11 +42,15 @@ public class PlayerMotor : MonoBehaviour
     //Variable para manejar cuando el personaje está agachado
     bool isCrouch;
 
+    //Variable que nos dice si el jugador es  inmune o no
+    bool isImmune;
+
     // Start is called before the first frame update
     void Start()
     {
         controller = GetComponent<CharacterController>();
         animatorController = GetComponent<Animator>();
+        rotation = transform.GetChild(0);
         isRunning = false;
     }
 
@@ -57,38 +63,11 @@ public class PlayerMotor : MonoBehaviour
         {
             return;
         }
-        //Revisamos cuando la tecla flecha izq es oprimida
-        if (Input.GetKeyDown(KeyCode.LeftArrow)){
-            ChangeLane(false);
-        }
-        //Revisamos cuando la tecla flecha der es oprimida        
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            ChangeLane(true);
-        }
-
-
-        //Este será el vector donde calcularemos hacia donde debo moverme
-        //Se * por forward para que vaya hacia adelante en el eje z
-        Vector3 targetPosition = transform.position.z * Vector3.forward;
-
-        //Movemos nuestro personaje dependiendo del carril
-        if(lane == 0)
-        {            
-            targetPosition += Vector3.left * DISTANCE;
-        }else if(lane == 2)
-        {
-            targetPosition += Vector3.right * DISTANCE;
-        }
 
         //Este será el vector de movimiento final de nuestro personaje
         Vector3 moveTarget = Vector3.zero;
 
-        //Calculamos el vector final de movimiento (eje x) 
-        //y lo normalizamos para evitar que en diagonal se sumen 
-        //los vectores y a su vez le agregamos la velocidad correspondiente
-        moveTarget.x = (targetPosition - transform.position).normalized.x
-                        * speed;
+        //Si el personaje está en el suelo o no
         bool isGrounded = IsGrounded();
 
         //Cambiamos el parametro si ha tocado el suelo
@@ -126,18 +105,17 @@ public class PlayerMotor : MonoBehaviour
             verticalVelocity -= (gravity * Time.deltaTime);
         }
 
+        moveTarget = transform.forward + transform.right * Input.GetAxis("Horizontal");
+        //El Vector en el eje x será la direccion de lo que se esté presionando (-1, 0, 1) por
+        //la velocidad de movimiento
+
+        moveTarget *= speed;
+
         //El vector en el eje y será en este momento la vel vertical
         moveTarget.y = verticalVelocity;
 
-        //En el eje z asignamos la velocidad que teniamos definida
-        moveTarget.z = speed;
-
         //Aplicamos el movimiento a nuestro character controller
         controller.Move(moveTarget * Time.deltaTime);
-
-        //Asignamos la velocidad que tiene el personaje al parametro
-        //correspondiente para activar las diferentes animaciones
-        animatorController.SetFloat("Speed", controller.velocity.z);
 
         #region Rotamos un poco al personaje cuando cambie de carril
 
@@ -148,14 +126,7 @@ public class PlayerMotor : MonoBehaviour
         //Definimos la direccion en el eje 'y' como cero
         dir.y = 0;
 
-        //Rotamos al personaje tomando su eje z y modificandolo con lerp
-        //el cual interpola dos puntos, en este caso entre la posicion
-        //anterior y el pequeño giro que le estamos haciendo y la
-        //velocidad a la cual se hará ese giro, que en realidad no es
-        //la velocidad, es que tanto se va a girar el personaje entre
-        //la diferencia del pto a y el pto b
-        transform.forward = Vector3.Lerp(transform.forward, dir, 
-                                        TURN_SPEED);
+        rotation.forward = Vector3.Lerp(rotation.forward, dir, TURN_SPEED);
 
         #endregion
 
@@ -164,16 +135,6 @@ public class PlayerMotor : MonoBehaviour
             isCrouch = true;
             Crouch();
         }
-    }
-
-    //Metodo que me permite cambiar el jugador de posicion o carril 
-    //recibo el booleano para manejar cuando se mueva a izq o der
-    public void ChangeLane(bool isRight)
-    {
-        lane += (isRight) ? 1 : -1;
-
-        //Clampeo la variable de forma que la limito a dos extremos
-        lane = Mathf.Clamp(lane, 0, 2);
     }
 
     //Metodo para verificar si el personaje está tocando el suelo
@@ -190,8 +151,8 @@ public class PlayerMotor : MonoBehaviour
         //limite del controlador en el eje z.
         //y finalmente le damos una direccion hacia abajo (down)
         Ray groundRay = new Ray(new Vector3(controller.bounds.center.x,
-        (controller.bounds.center.y - controller.bounds.extents.y) + 0.2f,
-                controller.bounds.center.z), Vector3.down);
+                                            (controller.bounds.center.y - controller.bounds.extents.y) + 0.2f,
+                                            controller.bounds.center.z), Vector3.down);
 
         //Retornamos el resultado si el rayo toca el suelo o no
         //le damos el rayo que vamos a usar y la longitud del mismo
@@ -203,6 +164,7 @@ public class PlayerMotor : MonoBehaviour
     public void StartRun()
     {
         isRunning = true;
+        animatorController.SetFloat("Speed", speed);
     }
 
     //Me cambia el estado del personaje a detenido, de esta forma pausamos
@@ -248,7 +210,7 @@ public class PlayerMotor : MonoBehaviour
     private bool isBigJump(){
         Ray forwardRay = new Ray(new Vector3(controller.bounds.center.x,
                                             controller.bounds.center.y,
-                                            (controller.bounds.center.z + controller.bounds.extents.z)), Vector3.forward);
+                                            (controller.bounds.center.z + controller.bounds.extents.z)), transform.forward);
 
         RaycastHit hit;
 
@@ -312,5 +274,41 @@ public class PlayerMotor : MonoBehaviour
                 collider.isTrigger = true;
             }
         }
+
+        //Se asigna el ultimo tile hasta donde el jugador es inmune
+        LevelManager.sharedInstance.SetLastImmunityTile();
+        isImmune = true;
+    }
+
+    //Cambia la rotacion del jugador a la nueva direccion
+    //se llama desde ChangeDirection.cs
+    public void ChangeDirection(int direction, float degrees){
+        transform.rotation *= Quaternion.Euler(0, degrees * direction, 0);
+    }
+
+    //Centra al jugador en la posicion correcta antes de seguir avanzando
+    //cuando hay un giro. Se llama desde ChangeDirection.cs
+    public void PerfectCenter(Vector3 center){
+        //Primero desactivamos el controller para poder centrarlo con transform
+        controller.enabled = false;
+        //Se centra el jugador justo en la posicion del tile de la curva
+        transform.position = new Vector3(center.x, transform.position.y, center.z);
+        //Se vuelve activar el controller para que se siga moviendo
+        controller.enabled = true;
+    }
+
+    //Retorna si el jugador está corriendo o no
+    public bool GetIsRunning(){
+        return isRunning;
+    }
+
+    //Asigna el valor a isImmune
+    public void SetImmune(bool isImmune){
+        this.isImmune = isImmune;
+    }
+
+    //Retorna si el jugador es inmune o no
+    public bool GetImmune(){
+        return isImmune;
     }
 }

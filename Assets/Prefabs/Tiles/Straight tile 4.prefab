@@ -76,7 +76,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8491994133903581515}
   m_Layer: 0
-  m_Name: Tile 4
+  m_Name: Straight tile 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

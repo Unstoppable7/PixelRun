@@ -5,7 +5,7 @@ ModelImporter:
   internalIDToNameTable:
   - first:
       74: -203655887218126122
-    second: mixamo.com
+    second: Big Jump
   externalObjects: {}
   materials:
     materialImportMode: 1
@@ -26,7 +26,20 @@ ModelImporter:
       to improve retargeting quality.\n\t'mixamorig:Spine' is inbetween humanoid
       transforms and has rotation animation that will be discarded.\n\t'mixamorig:Spine1'
       is inbetween humanoid transforms and has rotation animation that will be discarded.\n"
-    animationRetargetingWarnings: 
+    animationRetargetingWarnings: "\nRetargeting quality report for clip 'mixamo.com':\n\tRightLowerLeg
+      average position error 0.3 mm and maximum position error 3.9 mm at time 0:
+      2 (2.8%) Frame 2\n\tLeftUpperArm average position error 57.9 mm and maximum
+      position error 91.5 mm at time 1: 2 (45.1%) Frame 32\n\tLeftLowerArm average
+      position error 38.3 mm and maximum position error 74.6 mm at time 0:17 (23.9%)
+      Frame 17\n\tLeftHand average position error 22.8 mm and maximum position error
+      55.9 mm at time 0:17 (23.9%) Frame 17\n\tRightUpperArm average position error
+      57.9 mm and maximum position error 91.5 mm at time 1: 2 (45.1%) Frame 32\n\tRightLowerArm
+      average position error 35.3 mm and maximum position error 68.2 mm at time 1:12
+      (59.2%) Frame 42\n\tRightHand average position error 29.5 mm and maximum position
+      error 78.9 mm at time 2:11 (100.0%) Frame 71\n\tHead average position error
+      57.9 mm and maximum position error 91.5 mm at time 1: 2 (45.1%) Frame 32\n\tRightFoot
+      average orientation error 0.1 deg and maximum orientation error 4.1 deg at
+      time 1:14 (62.0%) Frame 44\n"
     animationDoRetargetingWarnings: 1
     importAnimatedCustomProperties: 0
     importConstraints: 0
@@ -37,7 +50,36 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Big Jump
+      takeName: mixamo.com
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 71
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 0
   meshes:
     lODScreenPercentages: []

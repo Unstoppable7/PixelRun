@@ -5,7 +5,7 @@ ModelImporter:
   internalIDToNameTable:
   - first:
       74: -203655887218126122
-    second: mixamo.com
+    second: Falling Back Death
   externalObjects: {}
   materials:
     materialImportMode: 1
@@ -26,7 +26,18 @@ ModelImporter:
       to improve retargeting quality.\n\t'mixamorig:Spine' is inbetween humanoid
       transforms and has rotation animation that will be discarded.\n\t'mixamorig:Spine1'
       is inbetween humanoid transforms and has rotation animation that will be discarded.\n"
-    animationRetargetingWarnings: 
+    animationRetargetingWarnings: "\nRetargeting quality report for clip 'mixamo.com':\n\tLeftLowerLeg
+      average position error 1.7 mm and maximum position error 8.6 mm at time 1:15
+      (57.7%) Frame 45\n\tLeftUpperArm average position error 59.9 mm and maximum
+      position error 97.1 mm at time 0:15 (19.2%) Frame 15\n\tLeftLowerArm average
+      position error 43.8 mm and maximum position error 106.1 mm at time 0:13 (16.7%)
+      Frame 13\n\tLeftHand average position error 26.7 mm and maximum position error
+      82.8 mm at time 0:13 (16.7%) Frame 13\n\tRightUpperArm average position error
+      59.9 mm and maximum position error 97.1 mm at time 0:15 (19.2%) Frame 15\n\tRightLowerArm
+      average position error 27.3 mm and maximum position error 64.0 mm at time 0:27
+      (34.6%) Frame 27\n\tRightHand average position error 26.8 mm and maximum position
+      error 57.9 mm at time 1:23 (67.9%) Frame 53\n\tHead average position error
+      59.9 mm and maximum position error 97.1 mm at time 0:15 (19.2%) Frame 15\n"
     animationDoRetargetingWarnings: 1
     importAnimatedCustomProperties: 0
     importConstraints: 0
@@ -37,7 +48,36 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Falling Back Death
+      takeName: mixamo.com
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 78
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 0
   meshes:
     lODScreenPercentages: []

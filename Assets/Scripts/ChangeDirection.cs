@@ -36,14 +36,19 @@ public class ChangeDirection : MonoBehaviour
         }
 
         if(other.CompareTag("Player")){
-            //Si el jugador no presiona para girar, y si el jugador no es inmune
+            //Si el jugador no presiona para girar y no es inmune
+            //y no tiene escudo
             //no hace nada (se estrella)
-            if(!changePressed && !GameManager.sharedInstance.GetImmunePlayer()){
+            if(
+                !changePressed &&
+                !GameManager.sharedInstance.GetImmunePlayer() &&
+                !GameManager.sharedInstance.GetPlayerShield()){
                 return;
             }
             
-            //Ahora si el jugador presiona para girar o está inmune (gira)
-            //Destruye los triggers del giro
+            //Ahora si el jugador presiona para girar o está inmune o tiene el escudo entonces gira
+            //Destruye los triggers del tile de la curva para asegurarnos de que no gire varias veces
+            //en el mismo tile
             DestroyColliders();
 
             //Centramos al jugador antes de girarlo
@@ -53,6 +58,9 @@ public class ChangeDirection : MonoBehaviour
             GameManager.sharedInstance.ChangePlayerDirection(direction, degrees);
 
             //Centramos la camara antes de girarla
+            //El vector por parametro solo tendrá la posicion en Z local de la curva
+            //servirá para centrar a la camara antes de girar y hacer que esta posicion sea
+            //la nueva x local y que no se siga moviendo en el centro
             GameManager.sharedInstance.PerfectCameraCenter(transform.InverseTransformDirection(new Vector3(
                 transform.position.x * transform.forward.x,
                 transform.position.y * transform.forward.y,
@@ -68,6 +76,8 @@ public class ChangeDirection : MonoBehaviour
     void DestroyColliders(){
         BoxCollider[] colliders = gameObject.GetComponents<BoxCollider>();
 
+        //Solo eliminamos los triggers, para asegurarnos que las colisiones normales
+        //aun queden alli y el jugador choque si no llega a girar
         foreach (BoxCollider collider in colliders){
             if(collider.isTrigger){
                 Destroy(collider);

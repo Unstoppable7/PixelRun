@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5396006387340966121}
   - component: {fileID: 5396006387340966120}
   - component: {fileID: 5396006387340966127}
+  - component: {fileID: 8304673955459411126}
   m_Layer: 0
   m_Name: Coin
   m_TagString: Untagged
@@ -155,8 +156,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8b7043724a3540449cf4e7b2043d1e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collectableAmount: 5
   velocity: 100
+--- !u!114 &8304673955459411126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4162340003543139317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3241530d3c9b701479d6050ce0235f61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collectableAmount: 1
 --- !u!1 &7624541949209257576
 GameObject:
   m_ObjectHideFlags: 0

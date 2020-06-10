@@ -211,38 +211,81 @@ public class GameManager : MonoBehaviour
         motor.Revive();
     }
 
-    //Cambia la direccion del jugador
-    public void ChangePlayerDirection(int direction, float degrees){
-        motor.ChangeDirection(direction, degrees);
-    }
+    #region Encapsulamiento de metodos de la camara para acceder a ellos de manera publica desde GameManager
 
-    //Cambia la direccion del jugador
+    //Cambia la direccion de la camara
+    //se llama desde ChangeDirection.cs
     public void ChangeCameraDirection(int direction, float degrees){
         StartCoroutine(camera.ChangeDirection(direction, degrees));
     }
 
-    //Coloca al jugador exactamente en el centro despues de girar
-    public void PerfectPlayerCenter(Vector3 center){
-        motor.PerfectCenter(center);
-    }
-
     //Centra la camara cuando gira el jugador
+    //se llama desde ChangeDirection.cs
     public void PerfectCameraCenter(Vector3 center){
         camera.PerfectCenter(center);
     }
 
+    #endregion
+
+    #region Encapsulamiento de metodos del jugador para acceder a ellos de manera publica desde GameManager
+
+    //Cambia la direccion del jugador
+    //se llama desde ChangeDirection.cs
+    public void ChangePlayerDirection(int direction, float degrees){
+        motor.ChangeDirection(direction, degrees);
+    }
+
+    //Coloca al jugador exactamente en el centro despues de girar
+    //se llama desde ChangeDirection.cs
+    public void PerfectPlayerCenter(Vector3 center){
+        motor.PerfectCenter(center);
+    }
+
     //Retorna si el jugador está corriendo o no
+    //se llama desde ChangeDirection.cs
     public bool IsPlayerRunning(){
         return motor.GetIsRunning();
     }
 
     //Asigna la inmunidad del jugador
+    //se llama en LevelManager.cs
     public void SetImmunePlayer(bool isImmune){
         motor.SetImmune(isImmune);
     }
 
     //Regresa si el jugador es inmune o no
+    //se llama desde ChangeDirection.cs
     public bool GetImmunePlayer(){
         return motor.GetImmune();
     }
+
+    //Hace que el jugador pueda atacar
+    //se llama desde CollectableAttack.cs
+    public void SetPlayerAttack(bool isAttack){
+        //Si está atacando, que no ataque de nuevo para que no se interrumpa
+        //la animacion ni la velocidad del ataque actual
+        if(motor.GetDestroy()){
+            return;
+        }
+        motor.SetAttack(isAttack);
+    }
+
+    //Hace que el jugador active su escudo
+    //se llama desde CollectableShield.cs
+    public void SetPlayerShield(bool isShield, float time){
+        //Si ya tiene un escudo activo o es inmune no se sobrepone otro escudo
+        if(motor.GetShield() || motor.GetImmune()){
+            return;
+        }
+        motor.SetShield(isShield);
+        StartCoroutine(motor.Shield(time));
+    }
+
+    //Retorna si el jugador tiene escudo o no
+    //se llama desde ChangeDirection.cs
+    public bool GetPlayerShield(){
+        return motor.GetShield();
+    }
+
+    #endregion
 }

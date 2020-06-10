@@ -72,7 +72,7 @@ public class CameraFollow : MonoBehaviour
         }        
     }
 
-    //Asigna la posicion central de la camara para que no se pueda en el centro
+    //Asigna la posicion central de la camara para que no se pueda mover en el centro
     public void PerfectCenter(Vector3 center){
         initPosition = center.z;
     }

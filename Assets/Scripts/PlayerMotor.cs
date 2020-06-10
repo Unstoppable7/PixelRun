@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerMotor : MonoBehaviour
 {
-    //Distancia entre c/u de los carriles
-    const float DISTANCE = 1.6f;
+    //Distancia entre c/u de los limites
+    const float DISTANCE = 2.8f;
     //Velocidad de rotacion del personaje cuando cambia de carril
     //o cuanto queremos que rote
     const float TURN_SPEED = 0.05f;
@@ -43,7 +43,22 @@ public class PlayerMotor : MonoBehaviour
     bool isCrouch;
 
     //Variable que nos dice si el jugador es  inmune o no
+    //para hacer que las curvas giren automaticamente al jugador
+    //cuando es inmune
     bool isImmune;
+
+    //Nos dice si el jugador puede atacar o no
+    //solo se usa para realizar la animacion cuando
+    //vaya a realizar el ataque y no se repita la animacion
+    bool isAttack;
+
+    //Se usa para comprobar que puede destruir obstaculos
+    //mientras está atacando, para no estrellarse con un
+    //obstaculo sino destruirlo
+    bool isDestroy;
+
+    //Nos dice si tiene el escudo activado o no
+    bool isShield;
 
     // Start is called before the first frame update
     void Start()
@@ -52,6 +67,9 @@ public class PlayerMotor : MonoBehaviour
         animatorController = GetComponent<Animator>();
         rotation = transform.GetChild(0);
         isRunning = false;
+
+        //Posiciona los limites al lado del jugador
+        StartLimits();
     }
 
     // Update is called once per frame
@@ -126,6 +144,8 @@ public class PlayerMotor : MonoBehaviour
         //Definimos la direccion en el eje 'y' como cero
         dir.y = 0;
 
+        //Se rota al objeto dentro del jugador
+        //para que no afecte el movimiento hacia adelante
         rotation.forward = Vector3.Lerp(rotation.forward, dir, TURN_SPEED);
 
         #endregion
@@ -133,7 +153,22 @@ public class PlayerMotor : MonoBehaviour
         //Jugador se agacha una sola vez y solo si está en el suelo
         if(Input.GetKeyDown(KeyCode.DownArrow) && !isCrouch && isGrounded){
             isCrouch = true;
-            Crouch();
+            StartCoroutine(Crouch());
+        }
+
+        //Si el jugador puede atacar una sola vez y presiona la w para atacar
+        if(isAttack && Input.GetKeyDown(KeyCode.W)){
+            //Hacemos isAttack false para que esté lista de una vez
+            //para la animacion de ataque si se agarra otro powerup de ataque mientras
+            //está atacando 
+            isAttack = false;
+            
+            //isDestroy se pone a true y nos dice que puede destruir los obstaculos
+            //con los que choca el personaje
+            isDestroy = true;
+
+            //Inicia el ataque del jugador
+            StartCoroutine(Attack());
         }
     }
 
@@ -179,9 +214,24 @@ public class PlayerMotor : MonoBehaviour
     //detectar las colisiones del jugador
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.gameObject.CompareTag("Obstacle"))
-        {
-            Crash();
+        if(hit.gameObject.CompareTag("Obstacle")){
+            //Si choca con obstaculos y tiene el escudo
+            //vuelve el collider del obstaculo a trigger
+            //para que lo atraviese
+            if(isShield){
+                hit.collider.isTrigger = true;
+                return;
+            }
+            
+            //Si puede destruir, destrulle el obstaculo con el que choca
+            else if(isDestroy){
+                Destroy(hit.gameObject);
+            }
+
+            //Si no muere
+            else{
+                Crash();
+            }
         }
     }
 
@@ -225,7 +275,7 @@ public class PlayerMotor : MonoBehaviour
 
     //Metodo que realiza la animacion de deslizarse en el suelo y
     // bajar el collider para simular que está agachado
-    private void Crouch(){
+    private IEnumerator Crouch(){
         animatorController.SetTrigger("Slide");
 
         controller.height /= 2;
@@ -233,14 +283,13 @@ public class PlayerMotor : MonoBehaviour
 
         //Levanta al jugador en un tiempo aproximado a lo que dura la
         //animación de deslizarse
-        Invoke("GetUp", 1.2f);
-    }
-
-    //Metodo para levantar al jugador colocando de nuevo la altura y
-    //centro del controller
-    private void GetUp(){
+        yield return new WaitForSeconds(1.2f);
+        
+        //levanta al jugador colocando de nuevo la altura y
+        //centro del controller
         controller.height *= 2;
         controller.center *= 2;
+
         isCrouch = false;
     }
 
@@ -278,6 +327,7 @@ public class PlayerMotor : MonoBehaviour
         //Se asigna el ultimo tile hasta donde el jugador es inmune
         LevelManager.sharedInstance.SetLastImmunityTile();
         isImmune = true;
+        StartCoroutine(InmunityShield());
     }
 
     //Cambia la rotacion del jugador a la nueva direccion
@@ -297,9 +347,39 @@ public class PlayerMotor : MonoBehaviour
         controller.enabled = true;
     }
 
+    //Inicializa la posicion de los colliders de los limites en el mapa
+    void StartLimits(){
+        GameObject playerLimits = GameObject.Find("PlayerLimits");
+
+        BoxCollider[] limitsCollider = playerLimits.GetComponents<BoxCollider>();
+
+        //Limite izquierdo
+        limitsCollider[0].center = new Vector3(-DISTANCE, limitsCollider[0].center.y, limitsCollider[0].center.z);
+
+        //Limite derecho
+        limitsCollider[1].center = new Vector3(DISTANCE, limitsCollider[1].center.y, limitsCollider[1].center.z);
+    }
+
+    #region Metodos Geters y Seters del jugador
+
     //Retorna si el jugador está corriendo o no
     public bool GetIsRunning(){
         return isRunning;
+    }
+
+    //Retorna si el jugador es inmune o no
+    public bool GetImmune(){
+        return isImmune;
+    }
+
+    //Retorna si el jugador tiene escudo o no
+    public bool GetShield(){
+        return isShield;
+    }
+
+    //Retorna si el jugador está destruyendo o no
+    public bool GetDestroy(){
+        return isDestroy;
     }
 
     //Asigna el valor a isImmune
@@ -307,8 +387,82 @@ public class PlayerMotor : MonoBehaviour
         this.isImmune = isImmune;
     }
 
-    //Retorna si el jugador es inmune o no
-    public bool GetImmune(){
-        return isImmune;
+    //Asigna el valor a isAttack
+    public void SetAttack(bool isAttack){
+        this.isAttack = isAttack;
     }
+    
+    //Asigna el valor a isShield
+    public void SetShield(bool isShield){
+        this.isShield = isShield;
+    }
+
+    #endregion
+
+
+    #region Animaciones de immunity, attack y shield
+
+    //Hace la animacion del ataque
+    IEnumerator Attack(){
+        //Realizamos la animacion de attack
+        animatorController.SetTrigger("Attack");
+
+        //Velocidad en 0 para dar un "efecto" como de preparacion para el golpe
+        speed = 0f;
+        yield return new WaitForSeconds(1f);
+
+        //Despues de un segundo se aumenta la velocidad para que de el efecto de impulso
+        speed = 20f;
+        yield return new WaitForSeconds(0.5f);
+
+        //Despues de un tiempo se coloca la velocidad normal del movimiento
+        speed = 5f;
+
+        //Despues del efecto de atacar, se vuelve isDestroy a false
+        //para que ya no pueda destruir obstaculos
+        isDestroy = false;
+    }
+
+    //Hace la animacion del escudo
+    public IEnumerator Shield(float time){
+        //Se guarda el gameObject shield dentro del jugador
+        GameObject shield = transform.GetChild(1).gameObject;
+
+        //Se muestra el escudo
+        shield.SetActive(true);
+        yield return new WaitForSeconds(time);
+
+        //Despues del tiempo de duracion del escudo se deja de mostrar
+        shield.SetActive(false);
+
+        //Y se desactiva el escudo, para que pueda chocar
+        isShield = false;
+    }
+
+    //Hace la animacion de la inmunidad
+    IEnumerator InmunityShield(){
+        //Se guarda el gameObject shield dentro del jugador
+        GameObject shield = transform.GetChild(1).gameObject;
+
+        //Se guarda el color inicial del escudo
+        Color initShieldColor = shield.GetComponent<Renderer>().material.color;
+
+        //Color que tendrá el escudo cuando es inmune
+        Color inmmuneShieldColor = new Color32(246, 255, 146, 89);
+
+        //Mientras que sea inmune muestro el escudo de color amarillo
+        while(isImmune){
+            shield.GetComponent<Renderer>().material.color = inmmuneShieldColor;
+            shield.SetActive(true);
+            yield return null;
+        }
+
+        //Cuando deja de ser inmune el jugador desactivo el escudo para que no se vea
+        shield.SetActive(false);
+
+        //Y lo regreso a su color inicial (que es el color morado del powerup)
+        shield.GetComponent<Renderer>().material.color = initShieldColor;
+    }
+
+    #endregion
 }

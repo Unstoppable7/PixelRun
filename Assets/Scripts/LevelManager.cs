@@ -64,6 +64,8 @@ public class LevelManager : MonoBehaviour
 
     //Guarda la posicion del ultimo tile que hace que el jugador
     //sea inmune se asigna en el metodo Inmunity del jugador
+    //cuando se destruya ese ultimo tile de inmunidad la variable
+    //inmune de jugador se vuelve false
     int lastImmunityTile;
 
     //Cantidad de tiles despues de la ultima curva
@@ -132,8 +134,10 @@ public class LevelManager : MonoBehaviour
             //Eliminamos el ultimo tile
             DeleteLastTile();
 
-            //Si el tile hasta donde el jugador es inmune es mayor a cero
-            if(lastImmunityTile > 0){
+            //Si el tile hasta donde el jugador es inmune es mayor a 3
+            //mayor a tres para tomar en cuenta los tiles que no
+            //han sido destruidos aun
+            if(lastImmunityTile > 3){
                 //Se va restando cuando se elimina un tile anterior ya que tambien se va
                 //disminuyendo
                 lastImmunityTile--;
@@ -206,6 +210,9 @@ public class LevelManager : MonoBehaviour
         //Se crean los primeros dos tiles en linea recta
         if(activeTiles.Count < 2){
             tile.transform.position = Vector3.forward * spawnZ;
+
+            //Sumamos al valor de posicion spawnZ el tamaño del tile
+            spawnZ += tileLenght;
         }
 
         else{
@@ -231,9 +238,6 @@ public class LevelManager : MonoBehaviour
                 tile.transform.rotation = activeTiles[activeTiles.Count-1].transform.rotation;
             }
         }
-
-        //Sumamos al valor de posicion spawnZ el tamaño del tile
-        spawnZ += tileLenght;
 
         //Añadimos este nuevo tile a la lista de tiles activos
         activeTiles.Add(tile);

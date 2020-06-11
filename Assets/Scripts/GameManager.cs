@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -13,11 +12,13 @@ public class GameManager : MonoBehaviour
     //Referencia al playerMotor para saber cuando empieza a moverse
     PlayerMotor motor;
 
+    //Referencia al UIManager
+    public UIManager userInterfaceManager;
+
     //Referencia de juego iniciado
     public bool IsGameStarted { get; set; }
 
-
-    #region Variables para la puntuacion
+    #region Variables de juego
 
     //Propiedad a la puntuacion de cada partida
     public float Score { get; set; }
@@ -28,29 +29,7 @@ public class GameManager : MonoBehaviour
     //Propiedad a la puntuacion maxima obtenida
     public float HighScore { get; set; }
 
-    #endregion
-
-    #region Variables UI
-    
-    //Texto de la puntuacion
-    [SerializeField]
-    Text scoreText;
-    //Texto de la cant de monedas inGame
-    [SerializeField]
-    Text coinsText;
-
-    //Cuenta regresiva para reanudar el juego
-    [SerializeField]
-    Text countDownResumeText;
-
-    //Boton de pausa    
-    public GameObject pauseButton;
-
-    //Menu luego de morir    
-    public GameObject DeathMenu;
-    //private bool isPause = false;
-
-    #endregion
+    #endregion   
 
     private void Awake()
     {
@@ -71,18 +50,18 @@ public class GameManager : MonoBehaviour
                 .GetComponent<PlayerMotor>();
 
         //Cargamos los datos locales del jugador
-        LoadPlayerData();
+        //LoadPlayerData();
         //Asignacion provisional del texto en UI que mostrará las monedas actuales         
         //del jugador
-        GameObject coinTextUI = GameObject.FindGameObjectWithTag("CoinText");
-        coinTextUI.GetComponent<TextMeshProUGUI>().text = Coins.ToString("0");
+        //GameObject coinTextUI = GameObject.FindGameObjectWithTag("CoinText");
+        //coinTextUI.GetComponent<TextMeshProUGUI>().text = Coins.ToString("0");
     }
 
     // Start is called before the first frame update
     void Start()
     {
         //Actualizo inicialmente la UI de las puntuaciones
-        UpdateTextScore();
+        //UpdateTextScore();
     }
 
     // Update is called once per frame
@@ -93,8 +72,8 @@ public class GameManager : MonoBehaviour
         {
             //Cada medio segundo el jugador va aumentando su puntuacion
             Score += (Time.deltaTime * 2);
-            //Asignamos al objeto Texto la puntacion formateada a un digito
-            scoreText.text = Score.ToString("0"); //MEJORAR
+            //Llamamos al metodo que actualiza en tiempo real el score del jugador
+            userInterfaceManager.UpdateTextScore(Score);
 
             //Imprimimos por pantalla nuestra puntuacion con un solo digito
             //print("Puntacion: " + Score.ToString("0"));
@@ -118,7 +97,7 @@ public class GameManager : MonoBehaviour
         Score += collectableAmount;
 
         //Actualizamos la UI de la puntacion
-        UpdateTextScore();
+        userInterfaceManager.ResfreshTextScore(CurrentCoins, Score);
     }
 
     //Metodo para terminar el juego
@@ -131,7 +110,7 @@ public class GameManager : MonoBehaviour
         Coins += CurrentCoins;
 
         //Guardamos localmente los datos del jugador obtenidos en partida
-        SaveSystem.SavePlayer(this);
+        //SaveSystem.SavePlayer(this);
              
     }
 
@@ -150,16 +129,6 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    //Metodo que actualiza la puntuacion en la UI
-    public void UpdateTextScore()
-    {
-        //Asignamos al objeto Texto la puntacion formateada a un digito
-        scoreText.text = Score.ToString("0");
-
-        //Asignamos al objeto Texto la cant de monedas formateada a un digito
-        coinsText.text = CurrentCoins.ToString("0");
-    }
-
     //Metodo llamado por el boton de la UI "Pause Button" para pausar el juego
     public void PauseGame()
     {
@@ -167,6 +136,16 @@ public class GameManager : MonoBehaviour
         IsGameStarted = false;
         //Detenemos al personaje
         motor.StopRun();
+    }
+
+    //Metodo para continuar el juego
+    public void ContinueGame()
+    {
+        //Reanudamos la partida
+        ResumeGame();
+
+        //Llamo al metodo para revivir al personaje
+        motor.Revive();
     }
 
     //Metodo que será llamado cuando querramos reanudar el juego luego de 
@@ -177,21 +156,23 @@ public class GameManager : MonoBehaviour
         if (!ready)
         {
             //Activamos el texto del temporizador
-            countDownResumeText.gameObject.SetActive(true);
+            userInterfaceManager.countDownResumeText.gameObject.SetActive(true);
+
             //Iniciamos la corrutina para el temporizador
             StartCoroutine("CountDownResume");
-        }        
+        }
         //Si el temporizador acabó
         if (ready)
         {
             //Detenemos la corrutina del temporizador
             StopCoroutine("CountDownResume");
+
             //Desactivamos el texto del temporizador
-            countDownResumeText.gameObject.SetActive(false);
+            userInterfaceManager.countDownResumeText.gameObject.SetActive(false);
             //Iniciamos el juego 
             StartGame();
             //Reactivamos el boton de pausa
-            pauseButton.gameObject.SetActive(true);
+            userInterfaceManager.pauseButton.gameObject.SetActive(true);
         }
     }
 
@@ -199,25 +180,16 @@ public class GameManager : MonoBehaviour
     public IEnumerator CountDownResume()
     {
         //Ciclo que decrementa cada numero a mostrar
-        for(int i = 3; i >=1 ; i-- )
+        for (int i = 3; i >= 1; i--)
         {
             //Asignamos el valor del ciclo al texto del temporizador
-            countDownResumeText.text = i.ToString();
+            userInterfaceManager.countDownResumeText.text = i.ToString();
             //Retornamos la corrutina durante 1 segundo
             yield return new WaitForSeconds(1f);
         }
         //Volvemos a llamar al metodo de reanudar partida con el parametro
         //que permite llevar a cabo esto
         ResumeGame(true);
-    }
-
-    public void ContinueGame()
-    {
-        //Reanudamos la partida
-        ResumeGame();
-
-        //Llamo al metodo para revivir al personaje
-        motor.Revive();
     }
 
     //Metodo para cargar los datos almacenados localmente

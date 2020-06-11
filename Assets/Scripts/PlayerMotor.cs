@@ -238,9 +238,11 @@ public class PlayerMotor : MonoBehaviour
         //GameManager.sharedInstance.GameOver();
 
         //Activamos el death menu
-        GameManager.sharedInstance.DeathMenu.SetActive(true);
+        GameManager.sharedInstance.userInterfaceManager.DeathMenu
+                                        .gameObject.SetActive(true);
         //Desactivamos el boton de pausa
-        GameManager.sharedInstance.pauseButton.SetActive(false);
+        GameManager.sharedInstance.userInterfaceManager.pauseButton
+                                        .gameObject.SetActive(false); ;
     }
 
     //Metodo que comprueba si adelante hay un obstaculo con el que

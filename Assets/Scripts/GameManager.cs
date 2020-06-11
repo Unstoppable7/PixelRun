@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -21,18 +22,20 @@ public class GameManager : MonoBehaviour
     //Propiedad a la puntuacion de cada partida
     public float Score { get; set; }
     //Propiedad al nro de monedas recogidas
-    public float Coins { get; set; }
+    public int Coins { get; set; }
+    //Propiedad al nro de monedas recogidas inGame
+    public int CurrentCoins { get; set; }
     //Propiedad a la puntuacion maxima obtenida
     public float HighScore { get; set; }
 
     #endregion
 
     #region Variables UI
-
+    
     //Texto de la puntuacion
     [SerializeField]
     Text scoreText;
-    //Texto de la cant de monedas
+    //Texto de la cant de monedas inGame
     [SerializeField]
     Text coinsText;
 
@@ -45,6 +48,7 @@ public class GameManager : MonoBehaviour
 
     //Menu luego de morir    
     public GameObject DeathMenu;
+    //private bool isPause = false;
 
     #endregion
 
@@ -65,6 +69,13 @@ public class GameManager : MonoBehaviour
         //Asignamos la referencia al script playerMotor del jugador
         motor = GameObject.FindGameObjectWithTag("Player")
                 .GetComponent<PlayerMotor>();
+
+        //Cargamos los datos locales del jugador
+        LoadPlayerData();
+        //Asignacion provisional del texto en UI que mostrará las monedas actuales         
+        //del jugador
+        GameObject coinTextUI = GameObject.FindGameObjectWithTag("CoinText");
+        coinTextUI.GetComponent<TextMeshProUGUI>().text = Coins.ToString("0");
     }
 
     // Start is called before the first frame update
@@ -76,7 +87,7 @@ public class GameManager : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    {                   
         //Si el juego ya inició
         if (IsGameStarted)
         {
@@ -102,7 +113,7 @@ public class GameManager : MonoBehaviour
     public void GetCollectable(int collectableAmount)
     {
         //Aumentamos el nro de monedas recogidas
-        Coins++;
+        CurrentCoins++;
         //Aumentamos la puntuacion del jugador
         Score += collectableAmount;
 
@@ -116,9 +127,12 @@ public class GameManager : MonoBehaviour
         //Totalizamos la puntacion final sumandole el nro de monedas recogidas
         HighScore += Score + Coins;
 
-        //Detenemos el juego
-        //IsGameStarted = false;
+        //Totaliszamos las modenas conseguidas en la partida
+        Coins += CurrentCoins;
 
+        //Guardamos localmente los datos del jugador obtenidos en partida
+        SaveSystem.SavePlayer(this);
+             
     }
 
     //Metodo para reiniciar el nivel
@@ -127,7 +141,7 @@ public class GameManager : MonoBehaviour
         //Invocamos el metodo para recargar la escena con un retaso de 1sec
         Invoke("LoadScene", 1f);
     }
-
+    
     //Metodo para recargar la escena actual (Lo hacemos para poder llamarlo
     //mediante el Invoque)
     public void LoadScene()
@@ -143,7 +157,7 @@ public class GameManager : MonoBehaviour
         scoreText.text = Score.ToString("0");
 
         //Asignamos al objeto Texto la cant de monedas formateada a un digito
-        coinsText.text = Coins.ToString("0");
+        coinsText.text = CurrentCoins.ToString("0");
     }
 
     //Metodo llamado por el boton de la UI "Pause Button" para pausar el juego
@@ -204,5 +218,27 @@ public class GameManager : MonoBehaviour
 
         //Llamo al metodo para revivir al personaje
         motor.Revive();
+    }
+
+    //Metodo para cargar los datos almacenados localmente
+    public void LoadPlayerData()
+    {
+        //Recuperamos los datos en el archivo local
+        PlayerData data = SaveSystem.LoadPlayer();
+
+        //Si los datos existen
+        if (data != null)
+        {
+            //Asignamos los datos extraidos a las variables actuales
+            Coins = data.Coins;
+        }
+        else
+        {
+            //Inicializamos en cero las variables que se estan guardando 
+            //localmente en este momento del desarrollo
+            CurrentCoins = 0;
+            Coins = 0;
+        }
+        
     }
 }

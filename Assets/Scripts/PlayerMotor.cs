@@ -233,6 +233,19 @@ public class PlayerMotor : MonoBehaviour
                 Crash();
             }
         }
+
+        //Si se estrella con algo que no se puede destruir
+        else if(hit.gameObject.CompareTag("Indestructible")){
+            //Y no tiene el escudo ni es inmune entonces muere
+            if(!isShield && !isImmune){
+                Crash();
+            }
+
+            //Si no traspasa el objeto
+            else{
+               hit.collider.isTrigger = true;
+            }
+        }
     }
 
     //Metodo de muerte del personaje
@@ -320,6 +333,21 @@ public class PlayerMotor : MonoBehaviour
             Collider[] colliders = obstacle.GetComponents<Collider>();
 
             //Vuelvo trigger los colliders de los obstaculos
+            //Desactiva los que tienen varios colliders
+            foreach (Collider collider in colliders){
+                collider.isTrigger = true;
+            }
+        }
+
+        //Guarda los objectos con el tag Indestructible
+        GameObject[] indestructibles = GameObject.FindGameObjectsWithTag("Indestructible");
+
+        //Recorre el array de indestructible
+        foreach (GameObject indestructible in indestructibles)
+        {                  
+            Collider[] colliders = indestructible.GetComponents<Collider>();
+
+            //Vuelvo trigger los colliders de los indestructible
             //Desactiva los que tienen varios colliders
             foreach (Collider collider in colliders){
                 collider.isTrigger = true;

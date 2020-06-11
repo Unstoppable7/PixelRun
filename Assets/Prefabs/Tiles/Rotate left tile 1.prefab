@@ -24,8 +24,8 @@ GameObject:
   - component: {fileID: 69600513783414198}
   - component: {fileID: 5242324095433540005}
   m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Obstacle
+  m_Name: Obstacle
+  m_TagString: Indestructible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

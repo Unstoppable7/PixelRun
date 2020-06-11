@@ -7,6 +7,8 @@ TagManager:
   - Obstacle
   - Collectable
   - GameManager
+  - Indestructible
+  - ChangeDirection
   layers:
   - Default
   - TransparentFX

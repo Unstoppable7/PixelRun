@@ -174,7 +174,7 @@ PrefabInstance:
     - target: {fileID: -927199367670048503, guid: f0480a58f6922694481971e857cda957,
         type: 3}
       propertyPath: m_TagString
-      value: Obstacle
+      value: Indestructible
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f0480a58f6922694481971e857cda957, type: 3}

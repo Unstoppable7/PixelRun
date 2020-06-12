@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IShopCustomer
 {
     //Singleton
     public static GameManager sharedInstance { set; get; }
@@ -18,18 +19,25 @@ public class GameManager : MonoBehaviour
     //Referencia de juego iniciado
     public bool IsGameStarted { get; set; }
 
+    bool applicationQuit = false;
+
     #region Variables de juego
 
     //Propiedad a la puntuacion de cada partida
-    public float Score { get; set; }
+    public float Score { get; private set; }
     //Propiedad al nro de monedas recogidas
-    public int Coins { get; set; }
+    public int Coins { get; private set; }
     //Propiedad al nro de monedas recogidas inGame
-    public int CurrentCoins { get; set; }
+    public int CurrentCoins { get; private set; }
     //Propiedad a la puntuacion maxima obtenida
-    public float HighScore { get; set; }
+    public float HighScore { get; private set; }
 
     #endregion   
+
+
+
+    public event EventHandler OnScoreAmountChanged;
+
 
     private void Awake()
     {
@@ -50,11 +58,10 @@ public class GameManager : MonoBehaviour
                 .GetComponent<PlayerMotor>();
 
         //Cargamos los datos locales del jugador
-        //LoadPlayerData();
-        //Asignacion provisional del texto en UI que mostrará las monedas actuales         
-        //del jugador
-        //GameObject coinTextUI = GameObject.FindGameObjectWithTag("CoinText");
-        //coinTextUI.GetComponent<TextMeshProUGUI>().text = Coins.ToString("0");
+        LoadPlayerData();
+
+        //Actualizamos las monedas disponibles del jugador
+        userInterfaceManager.UpdateCoinsAvailable(Coins);
     }
 
     // Start is called before the first frame update
@@ -80,6 +87,30 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //Metodo llamado cuando el focus de la aplicacion cambia, su valor entra
+    //por la variable focus
+    private void OnApplicationFocus(bool focus)
+    {
+        //Si pierde el foco de la app y el juego está iniciado
+        if (!focus && IsGameStarted)
+        {
+            //Pausame el juego activando el boton de pausa
+            userInterfaceManager.pauseButton.GetComponent<Button>()
+                                                    .onClick.Invoke();
+        }
+
+    }
+
+    private void OnApplicationPause(bool pause)
+    {
+        if (pause || applicationQuit)
+        {
+            //Guardamos localmente los datos del jugador obtenidos en partida
+            SaveSystem.SavePlayer(this);
+        }
+
+    }
+
     //Metodo para inciar el juego
     public void StartGame()
     {
@@ -97,7 +128,8 @@ public class GameManager : MonoBehaviour
         Score += collectableAmount;
 
         //Actualizamos la UI de la puntacion
-        userInterfaceManager.ResfreshTextScore(CurrentCoins, Score);
+        //userInterfaceManager.ResfreshTextScore(CurrentCoins, Score);
+        OnScoreAmountChanged?.Invoke(this, EventArgs.Empty);
     }
 
     //Metodo para terminar el juego
@@ -106,19 +138,23 @@ public class GameManager : MonoBehaviour
         //Totalizamos la puntacion final sumandole el nro de monedas recogidas
         HighScore += Score + Coins;
 
-        //Totaliszamos las modenas conseguidas en la partida
+        //Aumentamos las monedas del jugador con las modenas conseguidas 
+        //en la partida
         Coins += CurrentCoins;
 
+        //Actualizamos las monedas disponibles del jugador
+        //userInterfaceManager.UpdateCoinsAvailable(Coins);
+
+        //TODO CAMBIAR, QUE AL PERDER SE REINICIE LA ESCENA (PlayAgain())
         //Guardamos localmente los datos del jugador obtenidos en partida
-        //SaveSystem.SavePlayer(this);
-             
+        SaveSystem.SavePlayer(this);
     }
 
     //Metodo para reiniciar el nivel
     public void PlayAgain()
     {
         //Invocamos el metodo para recargar la escena con un retaso de 1sec
-        Invoke("LoadScene", 1f);
+        Invoke("LoadScene", 1f);        
     }
     
     //Metodo para recargar la escena actual (Lo hacemos para poder llamarlo
@@ -213,4 +249,47 @@ public class GameManager : MonoBehaviour
         }
         
     }
+
+    #region Metodos implementados por la interfaz IShopCustomer
+
+    //Compra el item y lo aplica
+    public void BoughtItem(Item.ItemType itemType)
+    {
+        //Al comprar el item se llama la funcion que aplica el mismo
+        switch (itemType)
+        {
+            case Item.ItemType.Attack: Debug.Log("Se compró el item Attack"); break;
+            case Item.ItemType.Shield: Debug.Log("Se compró el item Shield"); break;
+        }
+    }
+
+    //Revisa si tenemos suficiente dinero para comprar
+    public bool TrySpendGoldAmount(int coinsAmount)
+    {
+        //Si el oro que tenemos es mayor o igual al que se quiere gastar
+        if (Coins >= coinsAmount)
+        {
+            //Disminuimos nuestro oro actual
+            Coins -= coinsAmount;
+            //Llama al evento que modifica la UI del oro
+            userInterfaceManager.UpdateCoinsAvailable(Coins);
+
+            //FIX En este caso guardamos para efectos que en el editor se vea
+            //el resultado pero en la app de android no deberia ser necesario
+            //ya que se guarda al el salirse de la app (revisar)
+            SaveSystem.SavePlayer(this);
+
+            //Retornamos verdadero porque sí se logró comprar
+            return true;
+        }
+        else
+        {
+            //No se pudo comprar porque no hay suficiente oro
+            return false;
+        }
+    }
+
+    #endregion
+
+
 }

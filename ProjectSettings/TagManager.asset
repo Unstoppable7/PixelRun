@@ -6,7 +6,7 @@ TagManager:
   tags:
   - Obstacle
   - Collectable
-  - CoinText
+  - GameManager
   layers:
   - Default
   - TransparentFX

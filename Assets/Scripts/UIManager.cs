@@ -51,11 +51,14 @@ public class UIManager : MonoBehaviour
         //Asignamos al objeto Texto la cant de monedas formateada a un digito
         coinsText.text = currentCoins.ToString("0");
     }
-
+    //TODO
+    /**
     private void Instance_OnScoreAmountChanged(object sender, System.EventArgs e)
     {
         UpdateText();
     }
+    **/
+
     public void UpdateText()
     {
         //Asignamos al objeto Texto la puntacion formateada a un digito

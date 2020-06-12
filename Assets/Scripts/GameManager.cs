@@ -131,8 +131,9 @@ public class GameManager : MonoBehaviour, IShopCustomer
         Score += collectableAmount;
 
         //Actualizamos la UI de la puntacion
-        //userInterfaceManager.ResfreshTextScore(CurrentCoins, Score);
-        OnScoreAmountChanged?.Invoke(this, EventArgs.Empty);
+        userInterfaceManager.ResfreshTextScore(CurrentCoins, Score);
+        //TODO
+        //OnScoreAmountChanged?.Invoke(this, EventArgs.Empty);
     }
 
     //Metodo para terminar el juego

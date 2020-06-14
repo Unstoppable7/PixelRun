@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -60,6 +61,36 @@ public class PlayerMotor : MonoBehaviour
     //Nos dice si tiene el escudo activado o no
     bool isShield;
 
+    //Booleano que me indica si el giroscopio está disponible y activo
+    //en el movil
+    bool gyroEnabled;
+    //Giroscopio del movil
+    Gyroscope gyro;
+    //Quaternion para manejar el giroscopio
+    Quaternion rot;
+    #region Variables del double touch
+
+    private const float DOUBLE_TOUCH_TIME = 0.2f;
+    private float lastTouchTime = 0;
+    private bool doubleTouch = false;
+
+    #endregion
+
+    #region Variables del Swipe
+
+    Vector2 startTouchPosition, endTouchPosition;
+    public bool swipeUp { get; private set; } = false;
+    public bool swipeDown { get; private set; } = false;
+    //TODO al cambiar el input de girar 90° del change direction aqui
+    //hacer private el set
+    public bool swipeRight { get; set; } = false;
+    public bool swipeLeft { get; set; } = false;
+
+    #endregion
+
+    //Aumento de la sensibilidad del acelerometro
+    public float sensitivityAccelerometer { get; set; } = 2f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -68,19 +99,36 @@ public class PlayerMotor : MonoBehaviour
         rotation = transform.GetChild(0);
         isRunning = false;
 
+        //Referenciamos la variable del giroscopio 
+        //dependiendo del resultado del metodo
+        gyroEnabled = EnableGyro();
+
         //Posiciona los limites al lado del jugador
         StartLimits();
     }
 
+    
+
     // Update is called once per frame
     void Update()
     {
+        Debug.LogError("Right " + swipeRight);
+        Debug.LogError("Left" + swipeLeft);
+
         //Si el personaje no está corriendo (al inicio del juego) no
         //hacemos nada
         if (!isRunning)
         {
             return;
         }
+        //Revisamos si se realizó un swipe
+        if (Input.touchCount > 0)
+        {
+            SwipeCheck(Input.GetTouch(0));
+
+        }
+        //Revisamos si se realizó un double tab
+        CheckDoubleTab();
 
         //Este será el vector de movimiento final de nuestro personaje
         Vector3 moveTarget = Vector3.zero;
@@ -100,8 +148,11 @@ public class PlayerMotor : MonoBehaviour
             bool bigJump = isBigJump();
 
             //Si presiona la barra espaciadora
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) || swipeUp)
             {
+                //SwipeUp en falso
+                swipeUp = false;
+
                 //Asignamos como velocidad vertical la fuerza de salto
                 verticalVelocity = jump;
 
@@ -123,10 +174,19 @@ public class PlayerMotor : MonoBehaviour
             verticalVelocity -= (gravity * Time.deltaTime);
         }
 
-        moveTarget = transform.forward + transform.right * Input.GetAxis("Horizontal");
+        //El movimiento viene dado por, hacia adelante por el transform forward
+        //(0,0,1) que luego se le multiplicará la velocidad (speed) y hacia los 
+        //lados por el transform right (1,0,0) por en caso de presionar los
+        //botones configurados en el editor por el axis 'horizontal' o por
+        //el eje x del acelerometro del movil este multiplicado por una variable
+        //que aumenta la sensibilidad
+        moveTarget = transform.forward + transform.right 
+                            * ((Input.GetAxis("Horizontal") != 0) ? 
+                            Input.GetAxis("Horizontal") : 
+                            (Input.acceleration.x) * sensitivityAccelerometer);
+
         //El Vector en el eje x será la direccion de lo que se esté presionando (-1, 0, 1) por
         //la velocidad de movimiento
-
         moveTarget *= speed;
 
         //El vector en el eje y será en este momento la vel vertical
@@ -151,13 +211,16 @@ public class PlayerMotor : MonoBehaviour
         #endregion
 
         //Jugador se agacha una sola vez y solo si está en el suelo
-        if(Input.GetKeyDown(KeyCode.DownArrow) && !isCrouch && isGrounded){
+        if( (Input.GetKeyDown(KeyCode.DownArrow) || swipeDown) && !isCrouch && isGrounded){
+            swipeDown = false;        
             isCrouch = true;
             StartCoroutine(Crouch());
         }
 
-        //Si el jugador puede atacar una sola vez y presiona la w para atacar
-        if(isAttack && Input.GetKeyDown(KeyCode.W)){
+        //Si el jugador puede atacar una sola vez y presiona la w o hace 
+        //double touch para atacar
+        if( isAttack && (Input.GetKeyDown(KeyCode.W) || doubleTouch) ){
+
             //Hacemos isAttack false para que esté lista de una vez
             //para la animacion de ataque si se agarra otro powerup de ataque mientras
             //está atacando 
@@ -167,8 +230,13 @@ public class PlayerMotor : MonoBehaviour
             //con los que choca el personaje
             isDestroy = true;
 
+            //DoubleTab en falso
+            doubleTouch = false;
+
             //Inicia el ataque del jugador
             StartCoroutine(Attack());
+
+
         }
     }
 
@@ -223,7 +291,7 @@ public class PlayerMotor : MonoBehaviour
                 return;
             }
             
-            //Si puede destruir, destrulle el obstaculo con el que choca
+            //Si puede destruir, destruye el obstaculo con el que choca
             else if(isDestroy){
                 Destroy(hit.gameObject);
             }
@@ -495,4 +563,86 @@ public class PlayerMotor : MonoBehaviour
     }
 
     #endregion
+
+    //Metodo que me verifica si el dispositivo tiene giroscopio y de ser asi
+    //lo activa
+    private bool EnableGyro()
+    {
+        //Si el dispositivo soporta giroscoio
+        if (SystemInfo.supportsGyroscope)
+        {
+            //Referenciamos la variable a el input del dispositivo
+            gyro = Input.gyro;
+            //Habilitamos el giroscopio
+            gyro.enabled = true;
+
+            return true;
+        }
+        return false;
+    }
+
+    //Metodo para revisar cuando se realiza un double touch
+    private void CheckDoubleTab()
+    {
+        //Si se realiza al menos un touch
+        if (Input.GetMouseButtonDown(0))
+        {
+            //Almaceno el tiempo desde el ultimo touch
+            float timeSinceLastTouch = Time.time - lastTouchTime;
+
+            //Si el tiempo desde el ultimo touch es menor o igual al
+            //tiempo estimado ha considerarse como double touch
+            if(timeSinceLastTouch <= DOUBLE_TOUCH_TIME && Time.time > DOUBLE_TOUCH_TIME+1)
+            {
+                doubleTouch = true;
+            }
+            //Asigno el tiempo en que se realizó el ultimo touch desde que 
+            //comenzó la aplicacion
+            lastTouchTime = Time.time;
+        }
+        
+    }
+
+    //Metodo para verificar si se realizo un swap
+    void SwipeCheck(Touch touch)
+    {
+        //Si hay al menos un touch y este está en fase de inicio recien tocado
+        //sin soltarse, guardo la posicion inicial de ese primer touch
+        if (touch.phase == TouchPhase.Began)
+        {            
+            startTouchPosition = touch.position;
+        }
+
+        //Si hay al menos un touc y este está en fase de salida o recien soltado
+        
+        if (touch.phase == TouchPhase.Ended)
+        {
+            //Guardo la posicion final de este touch
+            endTouchPosition = touch.position;
+
+            if (endTouchPosition.y - 200f > startTouchPosition.y)
+            {
+                swipeUp = true;
+            }
+
+            if (endTouchPosition.y + 200f < startTouchPosition.y)
+            {
+                swipeDown = true;
+            }
+
+            if (endTouchPosition.x - 200f > startTouchPosition.x)
+            {
+                swipeRight = true;
+            }
+
+            if (endTouchPosition.x + 200f < startTouchPosition.x)
+            {
+                swipeLeft = true;
+            }
+        }
+        
+        Debug.LogError("Start: " + startTouchPosition);
+        Debug.LogError("End: " + endTouchPosition);
+        
+    }
 }

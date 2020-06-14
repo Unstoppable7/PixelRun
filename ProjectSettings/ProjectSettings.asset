@@ -755,9 +755,9 @@ PlayerSettings:
     m_VersionCode: 1
     m_VersionName: 
   apiCompatibilityLevel: 6
-  cloudProjectId: 36f6066e-b893-4a80-a188-fb1d5b5781fc
+  cloudProjectId: 7f760f14-8db7-4c52-a35f-8eec574ed9bc
   framebufferDepthMemorylessMode: 0
-  projectName: Endless Runner
+  projectName: PixelRun
   organizationId: alejandro7120
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0

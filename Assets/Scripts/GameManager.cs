@@ -10,8 +10,11 @@ public class GameManager : MonoBehaviour, IShopCustomer
     //Singleton
     public static GameManager sharedInstance { set; get; }
 
+    //TODO modificar los inputs en Change direction de forma que pueda 
+    //acceder a ellos desde PlayerMotor no tener que hacer publico esta 
+    //variable para saber si hubo swipe hacia los lados
     //Referencia al playerMotor para saber cuando empieza a moverse
-    PlayerMotor motor;
+    public PlayerMotor motor;
 
     //Referencia a la camara que seguirá al jugador para centrarla cuando hay un giro
     CameraFollow camera;
@@ -38,7 +41,6 @@ public class GameManager : MonoBehaviour, IShopCustomer
 #endregion
 
     public event EventHandler OnScoreAmountChanged;
-
 
     private void Awake()
     {
@@ -70,8 +72,7 @@ public class GameManager : MonoBehaviour, IShopCustomer
     // Start is called before the first frame update
     void Start()
     {
-        //Actualizo inicialmente la UI de las puntuaciones
-        //UpdateTextScore();
+        
     }
 
     // Update is called once per frame
@@ -101,7 +102,6 @@ public class GameManager : MonoBehaviour, IShopCustomer
             userInterfaceManager.pauseButton.GetComponent<Button>()
                                                     .onClick.Invoke();
         }
-
     }
 
     private void OnApplicationPause(bool pause)
@@ -373,4 +373,6 @@ public class GameManager : MonoBehaviour, IShopCustomer
     }
 
     #endregion
+
+    
 }

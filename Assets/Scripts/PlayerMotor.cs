@@ -5,7 +5,8 @@ using UnityEngine;
 public class PlayerMotor : MonoBehaviour
 {
     //Distancia entre c/u de los limites
-    const float DISTANCE = 2.8f;
+    const float DISTANCE = 2.5f;
+    
     //Velocidad de rotacion del personaje cuando cambia de carril
     //o cuanto queremos que rote
     const float TURN_SPEED = 0.05f;
@@ -13,14 +14,19 @@ public class PlayerMotor : MonoBehaviour
     #region Variables de movimiento
 
     //Fuerza de salto
-    float jump = 5.5f;
+    float jump = 7.5f;
+
     //Gravedad
-    float gravity = 12f;
+    float gravity = 20f;
+
     //Velocidad vertical, define la vel con la que el personaje iniciará
     //su descenso despues de saltar
     float verticalVelocity;
     //Velocidad del personaje
-    float speed = 5f;
+    float speed = 10f;
+
+    //Tiempo en segundos que dura en acelerar desde la velocidad inicial a la maxima
+    float accelerationTime = 0.01f;
 
     //Transform que usaremos para rotar al jugador
     //sin afectar su movimiento hacia adelante
@@ -59,6 +65,11 @@ public class PlayerMotor : MonoBehaviour
 
     //Nos dice si tiene el escudo activado o no
     bool isShield;
+
+    //Variable que guarda la velocidad actual que tiene el juego
+    //se usa para mantener el tiempo de velocidad actual cuando muere
+    //y reanudar a la misma velocidad
+    float initTime;
 
     // Start is called before the first frame update
     void Start()
@@ -99,8 +110,8 @@ public class PlayerMotor : MonoBehaviour
 
             bool bigJump = isBigJump();
 
-            //Si presiona la barra espaciadora
-            if (Input.GetKeyDown(KeyCode.Space))
+            //Si presiona la barra espaciadora y no está atacando, salta
+            if (Input.GetKeyDown(KeyCode.Space) && !isDestroy)
             {
                 //Asignamos como velocidad vertical la fuerza de salto
                 verticalVelocity = jump;
@@ -170,6 +181,8 @@ public class PlayerMotor : MonoBehaviour
             //Inicia el ataque del jugador
             StartCoroutine(Attack());
         }
+
+        Time.timeScale = Mathf.Lerp(Time.timeScale, 1.5f, Time.deltaTime * accelerationTime);
     }
 
     //Metodo para verificar si el personaje está tocando el suelo
@@ -251,6 +264,16 @@ public class PlayerMotor : MonoBehaviour
     //Metodo de muerte del personaje
     void Crash()
     {
+        //Cambiamos la velocidad del juego para que aumente de velocidad las animaciónes
+        //y todo a la vez, asi no es necesario aumentar la velocidad del jugador
+        //ya que se moveria muy rapido y no estaría uniforme con los tiles del mapa
+
+        //Guardamos la velocidad actual antes de hacer cualquier cosa
+        initTime = Time.timeScale;
+
+        //Se le da la velocidad normal del juego
+        Time.timeScale = 1;
+
         //Activamos el parametro de muerte del personaje para que se
         //anime
         animatorController.SetTrigger("Death");
@@ -319,6 +342,10 @@ public class PlayerMotor : MonoBehaviour
 
         //Agrego inmunidad al player en los obstaculos actuales en la escena
         Inmunity();
+
+        //Despues que hace todo lo de revivir a velocidad normal
+        //se regresa a la velocidad con la que venia corriendo
+        Time.timeScale = initTime;
     }
 
     //Metodo para dar inmunidad al personaje
@@ -339,7 +366,7 @@ public class PlayerMotor : MonoBehaviour
             }
         }
 
-        //Guarda los objectos con el tag Indestructible
+        /*//Guarda los objectos con el tag Indestructible
         GameObject[] indestructibles = GameObject.FindGameObjectsWithTag("Indestructible");
 
         //Recorre el array de indestructible
@@ -352,7 +379,7 @@ public class PlayerMotor : MonoBehaviour
             foreach (Collider collider in colliders){
                 collider.isTrigger = true;
             }
-        }
+        }*/
 
         //Se asigna el ultimo tile hasta donde el jugador es inmune
         LevelManager.sharedInstance.SetLastImmunityTile();
@@ -437,6 +464,8 @@ public class PlayerMotor : MonoBehaviour
         //Realizamos la animacion de attack
         animatorController.SetTrigger("Attack");
 
+        float initSpeed = speed;
+
         //Velocidad en 0 para dar un "efecto" como de preparacion para el golpe
         speed = 0f;
         yield return new WaitForSeconds(1f);
@@ -446,7 +475,7 @@ public class PlayerMotor : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         //Despues de un tiempo se coloca la velocidad normal del movimiento
-        speed = 5f;
+        speed = initSpeed;
 
         //Despues del efecto de atacar, se vuelve isDestroy a false
         //para que ya no pueda destruir obstaculos

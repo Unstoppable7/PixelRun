@@ -2,22 +2,41 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class MapPart{
+    //Guarda los tiles que estarán en linea recta
+    public List<GameObject> straightTiles = new List<GameObject>();
+    
+    //Guarda los tiles que giran a la izquierda el mapa
+    public List<GameObject> rightTiles = new List<GameObject>();
+    
+    //Guarda los tiles que giran a la derecha el mapa
+    public List<GameObject> leftTiles = new List<GameObject>();
+
+    //Variable aleatorea que contendrá la cantidad de tiles que
+    //tendrá cada parte del mapa cada vez que empieza a jugar
+    //se inicializa en el start
+    [HideInInspector]
+    public int tilesCount;
+
+    //Minimo de tiles que puede tener la parte del mapa
+    [Range(100, 200)]
+    public int minTilesCount;
+
+    //Maximo de tiles que puede tener la parte del mapa
+    [Range(500, 1000)]
+    public int maxTilesCount;
+
+    //Asigna la cantidad aleatorea de tiles que tendrá la parte del mapa
+    public void RandomTilesCount(){
+        tilesCount = Random.Range(minTilesCount, maxTilesCount);
+    }
+}
+
 public class LevelManager : MonoBehaviour
 {
     //Singleton
     public static LevelManager sharedInstance { set; get; }
-
-    [SerializeField]
-    //Guarda los tiles que estarán en linea recta
-    List<GameObject> straightTiles = new List<GameObject>();
-
-    //Guarda los tiles que giran a la derecha el mapa
-    [SerializeField]
-    List<GameObject> rightTiles = new List<GameObject>();
-
-    //Guarda los tiles que giran a la izquierda el mapa
-    [SerializeField]
-    List<GameObject> leftTiles = new List<GameObject>();
 
     //Referencia al transform del personaje
     Transform playerTransform;
@@ -33,7 +52,7 @@ public class LevelManager : MonoBehaviour
 
     //Zona segura donde podremos eliminar un tile porque ya está fuera de
     //pantalla
-    float safeZone = 15f;
+    float safeZone = 20f;
 
     //Index del ultimo tile creado
     int lastTileIndex;
@@ -72,6 +91,20 @@ public class LevelManager : MonoBehaviour
     //se legie aleatoreo entre los valores minNextCurve y maxNextCurve
     int nextCurve;
 
+    #region Variables para la creación de partes del mapa
+    
+    //Lista con las partes del mapa
+    [SerializeField]
+    List<MapPart> mapParts;
+
+    //La parte del mapa actual (la que se estará creando)
+    MapPart currentPart;
+
+    //Cantidad de tiles que se han creado por cada parte del mapa
+    int partTilesCount = 0;
+
+    #endregion
+
     void Awake(){
         if (!sharedInstance)
         {
@@ -81,14 +114,21 @@ public class LevelManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        //Inicializamos la cantidad de tiles que tendrá cada parte
+        foreach (MapPart part in mapParts){
+            part.RandomTilesCount();
+        }
+
+        //La parte que se creará será la primera al inicio
+        currentPart = mapParts[0];
     }
 
     // Start is called before the first frame update
     void Start()
     {
         //Referenciamos el transform del personaje
-        playerTransform = GameObject.FindGameObjectWithTag("Player")
-                            .transform;
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         
         //Referencia al transform que está en la escena dentro del LevelManager object
         tileDirection = GameObject.Find("TileDirection").transform;
@@ -108,7 +148,7 @@ public class LevelManager : MonoBehaviour
             //que este no tiene obstaculos en el centro)
             if (i < 2)
             {
-                SpawnTile(0);
+                SpawnTile(RandomTileIndex(2));
 
             }
             else //Despues del 2do tile generamos aleatorios
@@ -182,24 +222,31 @@ public class LevelManager : MonoBehaviour
             //Si la direccion va en linea recta
             //instancia los tiles de linea recta
             if(side == 0){
-                tile = Instantiate(straightTiles[RandomTileIndex(straightTiles.Count)]) as GameObject;
+                //Los dos primeros tiles despues de la curva serán seguros en el centro
+                if(tilesCount > 0 && tilesCount < 3){
+                    tile = Instantiate(currentPart.straightTiles[0]) as GameObject;
+                }
+
+                else{
+                    tile = Instantiate(currentPart.straightTiles[RandomTileIndex(currentPart.straightTiles.Count)]) as GameObject;
+                }
             }
 
             //Si la direccion cambia a la derecha
             //instancia los tiles de derecha
             else if(side == 1){
-                tile = Instantiate(rightTiles[RandomTileIndex(rightTiles.Count)]) as GameObject;
+                tile = Instantiate(currentPart.rightTiles[RandomTileIndex(currentPart.rightTiles.Count)]) as GameObject;
             }
 
             //Si la direccion cambia a la izquierda
             //instancia los tiles de izquierda
             else{
-                tile = Instantiate(leftTiles[RandomTileIndex(leftTiles.Count)]) as GameObject;
+                tile = Instantiate(currentPart.leftTiles[RandomTileIndex(currentPart.leftTiles.Count)]) as GameObject;
             }
         }
         else
         {
-            tile = Instantiate(straightTiles[prefabIndex]) as GameObject;
+            tile = Instantiate(currentPart.straightTiles[prefabIndex]) as GameObject;
         }
 
         //Hacemos padre del tile a este objeto LevelManager
@@ -244,6 +291,20 @@ public class LevelManager : MonoBehaviour
 
         //Se aumenta la cantidad de tiles creados despues de una curva
         tilesCount++;
+
+        //Se aumenta la cantidad de tiles de una parte del mapa
+        partTilesCount++;
+
+        if(partTilesCount >= currentPart.tilesCount){
+            int nextIndex = mapParts.IndexOf(currentPart) + 1;
+
+            if(nextIndex >= mapParts.Count){
+                nextIndex = 0;
+            }
+            
+            currentPart = mapParts[nextIndex];
+            partTilesCount = 0;
+        }
     }
 
     //Metodo para eliminar los tiles que van quedando atras

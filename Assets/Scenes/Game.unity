@@ -1357,7 +1357,7 @@ Canvas:
   m_GameObject: {fileID: 245793135}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 963194227}
   m_PlaneDistance: 1
   m_PixelPerfect: 0
@@ -4447,12 +4447,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   straightTiles:
-  - {fileID: 842645792957906828, guid: 40bdb46edfbe0114e8c40dcab3ff694f, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
   - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
   - {fileID: 8491994133903581514, guid: 9d49a6e0ab08d3f4db8bb13ce06e4d25, type: 3}
   - {fileID: 8261575744894422771, guid: 9018106256a757f4ebdfec18fea7071f, type: 3}
+  - {fileID: 842645792957906828, guid: 40bdb46edfbe0114e8c40dcab3ff694f, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
   - {fileID: 8491994133903581514, guid: 9d49a6e0ab08d3f4db8bb13ce06e4d25, type: 3}
   - {fileID: 3806490008457862567, guid: 27b0151200620c14da2a1886d2b5e15c, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
+  - {fileID: 8261575744894422771, guid: 9018106256a757f4ebdfec18fea7071f, type: 3}
   rightTiles:
   - {fileID: 4699033142777036512, guid: 849d831f5b802834fb23296aa614df99, type: 3}
   leftTiles:
@@ -7424,15 +7430,15 @@ MonoBehaviour:
   m_FillRect: {fileID: 1731456919}
   m_HandleRect: {fileID: 1089898398}
   m_Direction: 0
-  m_MinValue: 1
-  m_MaxValue: 4
+  m_MinValue: 0.5
+  m_MaxValue: 2
   m_WholeNumbers: 0
-  m_Value: 1
+  m_Value: 0.7
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1102007548}
-        m_MethodName: set_sensitivityAccelerometer
+        m_MethodName: set_sensitivityGyro
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

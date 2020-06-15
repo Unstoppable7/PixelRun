@@ -186,8 +186,10 @@ public class GameManager : MonoBehaviour, IShopCustomer
 
         //Llamo al metodo para revivir al personaje
         motor.Revive();
+
     }
 
+    
     //Metodo que será llamado cuando querramos reanudar el juego luego de 
     //una pausa (presionando el 'Resume Button')
     public void ResumeGame(bool ready = false)

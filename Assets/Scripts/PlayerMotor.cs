@@ -13,6 +13,8 @@ public class PlayerMotor : MonoBehaviour
 
     #region Variables de movimiento
 
+    //Este será el vector de movimiento final de nuestro personaje
+    Vector3 moveTarget;
     //Fuerza de salto
     float jump = 5.5f;
     //Gravedad
@@ -79,17 +81,17 @@ public class PlayerMotor : MonoBehaviour
     #region Variables del Swipe
 
     Vector2 startTouchPosition, endTouchPosition;
-    public bool swipeUp { get; private set; } = false;
-    public bool swipeDown { get; private set; } = false;
+    //public bool swipeUp { get; private set; } = false;
+    //public bool swipeDown { get; private set; } = false;
     //TODO al cambiar el input de girar 90° del change direction aqui
     //hacer private el set
-    public bool swipeRight { get; set; } = false;
-    public bool swipeLeft { get; set; } = false;
+    //public bool swipeRight { get; set; } = false;
+    //public bool swipeLeft { get; set; } = false;
 
     #endregion
 
     //Aumento de la sensibilidad del acelerometro
-    public float sensitivityAccelerometer { get; set; } = 2f;
+    public float sensitivityGyro { get; set; } = 0.7f;
 
     // Start is called before the first frame update
     void Start()
@@ -112,8 +114,8 @@ public class PlayerMotor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.LogError("Right " + swipeRight);
-        Debug.LogError("Left" + swipeLeft);
+        //Debug.LogError("Right " + swipeRight);
+        //Debug.LogError("Left" + swipeLeft);
 
         //Si el personaje no está corriendo (al inicio del juego) no
         //hacemos nada
@@ -121,17 +123,13 @@ public class PlayerMotor : MonoBehaviour
         {
             return;
         }
-        //Revisamos si se realizó un swipe
-        if (Input.touchCount > 0)
-        {
-            SwipeCheck(Input.GetTouch(0));
-
-        }
+        
+        
         //Revisamos si se realizó un double tab
         CheckDoubleTab();
 
         //Este será el vector de movimiento final de nuestro personaje
-        Vector3 moveTarget = Vector3.zero;
+        moveTarget = Vector3.zero;
 
         //Si el personaje está en el suelo o no
         bool isGrounded = IsGrounded();
@@ -139,6 +137,7 @@ public class PlayerMotor : MonoBehaviour
         //Cambiamos el parametro si ha tocado el suelo
         animatorController.SetBool("isGrounded", isGrounded);
 
+        //TRY copiar todo este codigo a una funcion y llamarlo en el metodo del swipe
         //Si el personaje está en el suelo 
         if (isGrounded)
         {
@@ -147,11 +146,13 @@ public class PlayerMotor : MonoBehaviour
 
             bool bigJump = isBigJump();
 
-            //Si presiona la barra espaciadora
-            if (Input.GetKeyDown(KeyCode.Space) || swipeUp)
+            //Revisamos si se realizó un swipe        
+            
+            //Si presiona la barra espaciadora o hace swipe hacia arriba
+            if (Input.GetKeyDown(KeyCode.Space) || SwipeCheck(1))
             {
                 //SwipeUp en falso
-                swipeUp = false;
+                //swipeUp = false;
 
                 //Asignamos como velocidad vertical la fuerza de salto
                 verticalVelocity = jump;
@@ -180,11 +181,24 @@ public class PlayerMotor : MonoBehaviour
         //botones configurados en el editor por el axis 'horizontal' o por
         //el eje x del acelerometro del movil este multiplicado por una variable
         //que aumenta la sensibilidad
-        moveTarget = transform.forward + transform.right 
+
+        //Con acelerometro
+        /**
+            moveTarget = transform.forward + transform.right 
                             * ((Input.GetAxis("Horizontal") != 0) ? 
                             Input.GetAxis("Horizontal") : 
                             (Input.acceleration.x) * sensitivityAccelerometer);
-
+        **/
+        
+        #if UNITY_EDITOR
+            moveTarget = transform.forward + transform.right * Input.GetAxis("Horizontal");
+#else
+            //Con Giroscopio
+            moveTarget = (transform.forward + (transform.right
+                                * ((Input.GetAxis("Horizontal") != 0) ?
+                                Input.GetAxis("Horizontal") :
+                                (-gyro.rotationRateUnbiased.z) * sensitivityGyro) ) );
+#endif
         //El Vector en el eje x será la direccion de lo que se esté presionando (-1, 0, 1) por
         //la velocidad de movimiento
         moveTarget *= speed;
@@ -195,7 +209,7 @@ public class PlayerMotor : MonoBehaviour
         //Aplicamos el movimiento a nuestro character controller
         controller.Move(moveTarget * Time.deltaTime);
 
-        #region Rotamos un poco al personaje cuando cambie de carril
+#region Rotamos un poco al personaje cuando cambie de carril
 
         //Le asignamos la velocidad que lleva nuestro personaje
         //para tomarla como referencia de la direccion que lleva
@@ -208,11 +222,11 @@ public class PlayerMotor : MonoBehaviour
         //para que no afecte el movimiento hacia adelante
         rotation.forward = Vector3.Lerp(rotation.forward, dir, TURN_SPEED);
 
-        #endregion
+#endregion
 
         //Jugador se agacha una sola vez y solo si está en el suelo
-        if( (Input.GetKeyDown(KeyCode.DownArrow) || swipeDown) && !isCrouch && isGrounded){
-            swipeDown = false;        
+        if( (Input.GetKeyDown(KeyCode.DownArrow) || SwipeCheck(2)) && !isCrouch && isGrounded){
+            //swipeDown = false;        
             isCrouch = true;
             StartCoroutine(Crouch());
         }
@@ -387,6 +401,9 @@ public class PlayerMotor : MonoBehaviour
 
         //Agrego inmunidad al player en los obstaculos actuales en la escena
         Inmunity();
+
+        //Posicionamos en el centro al player
+        ResetPositionX();
     }
 
     //Metodo para dar inmunidad al personaje
@@ -458,7 +475,7 @@ public class PlayerMotor : MonoBehaviour
         limitsCollider[1].center = new Vector3(DISTANCE, limitsCollider[1].center.y, limitsCollider[1].center.z);
     }
 
-    #region Metodos Geters y Seters del jugador
+#region Metodos Geters y Seters del jugador
 
     //Retorna si el jugador está corriendo o no
     public bool GetIsRunning(){
@@ -495,10 +512,10 @@ public class PlayerMotor : MonoBehaviour
         this.isShield = isShield;
     }
 
-    #endregion
+#endregion
 
 
-    #region Animaciones de immunity, attack y shield
+#region Animaciones de immunity, attack y shield
 
     //Hace la animacion del ataque
     IEnumerator Attack(){
@@ -562,7 +579,7 @@ public class PlayerMotor : MonoBehaviour
         shield.GetComponent<Renderer>().material.color = initShieldColor;
     }
 
-    #endregion
+#endregion
 
     //Metodo que me verifica si el dispositivo tiene giroscopio y de ser asi
     //lo activa
@@ -604,45 +621,66 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Metodo para verificar si se realizo un swap
-    void SwipeCheck(Touch touch)
+    //direction: Arriba = 1, Abajo = 2, Derecha = 3, Izquierda = 4
+    public bool SwipeCheck(int direction)
     {
-        //Si hay al menos un touch y este está en fase de inicio recien tocado
-        //sin soltarse, guardo la posicion inicial de ese primer touch
-        if (touch.phase == TouchPhase.Began)
-        {            
-            startTouchPosition = touch.position;
-        }
-
-        //Si hay al menos un touc y este está en fase de salida o recien soltado
-        
-        if (touch.phase == TouchPhase.Ended)
+        if (Input.touchCount > 0)
         {
-            //Guardo la posicion final de este touch
-            endTouchPosition = touch.position;
+            //Debug.LogError("Start: " + startTouchPosition);
 
-            if (endTouchPosition.y - 200f > startTouchPosition.y)
+            Touch touch = Input.GetTouch(0);
+            //bool band = true;
+            //Si hay al menos un touch y este está en fase de inicio recien tocado
+            //sin soltarse, guardo la posicion inicial de ese primer touch
+            if (touch.phase == TouchPhase.Began)
             {
-                swipeUp = true;
+                startTouchPosition = touch.position;
             }
 
-            if (endTouchPosition.y + 200f < startTouchPosition.y)
+            //Si hay al menos un touch y este está en fase de salida o recien soltado
+            if (touch.phase == TouchPhase.Moved)
             {
-                swipeDown = true;
-            }
+                //Guardo la posicion final de este touch
+                endTouchPosition = touch.position;
 
-            if (endTouchPosition.x - 200f > startTouchPosition.x)
-            {
-                swipeRight = true;
-            }
+                if (endTouchPosition.y - 200f > startTouchPosition.y && direction == 1)
+                {
+                    //swipeUp = true;
+                    return true;
+                }
 
-            if (endTouchPosition.x + 200f < startTouchPosition.x)
-            {
-                swipeLeft = true;
-            }
+                if (endTouchPosition.y + 200f < startTouchPosition.y && direction == 2)
+                {
+                    //swipeDown = true;
+                    return true;
+
+                }
+
+                if (endTouchPosition.x - 200f > startTouchPosition.x && direction == 3)
+                {
+                    //swipeRight = true;
+                    return true;
+
+                }
+
+                if (endTouchPosition.x + 200f < startTouchPosition.x && direction == 4)
+                {
+                    //swipeLeft = true;
+                    return true;
+
+                }
+            }           
+
+            //Debug.LogError("Start: " + startTouchPosition);
+            //Debug.LogError("End: " + endTouchPosition);
         }
-        
-        Debug.LogError("Start: " + startTouchPosition);
-        Debug.LogError("End: " + endTouchPosition);
-        
+        return false;
     }
+
+    //Metodo que posiciona al jugador en el punto central del mapa.
+    public void ResetPositionX()
+    {
+        transform.position = (new Vector3(0, transform.position.y, transform.position.z));
+    }
+
 }

@@ -46,27 +46,41 @@ public class ChangeDirection : MonoBehaviour
             //Si el jugador no presiona para girar y no es inmune
             //y no tiene escudo
             //no hace nada (se estrella)
-            if(
+            //Debug.LogError("DIRECTION: "+direction);
+            /**
+            if (
                 //aqui
                 //!changePressed &&
                 !GameManager.sharedInstance.GetImmunePlayer() &&
-                !GameManager.sharedInstance.GetPlayerShield()){
+                !GameManager.sharedInstance.GetPlayerShield())
+            {
                 return;
             }
+            **/
             //aqui
             //Bandera a false
             //changePressed = false;
-
+            //Debug.LogError("ENTRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
             //Si se presiona la tecla o el swipe correspondiente y está el tile
             //en esa direccion, el jugador gira
-            if (((Input.GetKeyDown(KeyCode.E) ||
-                GameManager.sharedInstance.motor.swipeRight) && direction == 1)
-                ||
-                ((Input.GetKeyDown(KeyCode.Q) ||
-                GameManager.sharedInstance.motor.swipeLeft) && direction == -1))
+            if ( 
+                    (   (Input.GetKeyDown(KeyCode.E) || GameManager.sharedInstance.motor.SwipeCheck(3) )
+                        && 
+                        (direction == 1)
+                    )
+                    ||
+                    (   (Input.GetKeyDown(KeyCode.Q) || GameManager.sharedInstance.motor.SwipeCheck(4) )
+                        && 
+                        (direction == -1)
+                    ) 
+                    ||
+                    GameManager.sharedInstance.GetImmunePlayer()
+                    ||
+                    GameManager.sharedInstance.GetPlayerShield()
+                )
             {
-                GameManager.sharedInstance.motor.swipeRight = false;
-                GameManager.sharedInstance.motor.swipeLeft = false;
+                //GameManager.sharedInstance.motor.swipeRight = false;
+                //GameManager.sharedInstance.motor.swipeLeft = false;
 
                 //Ahora si el jugador presiona para girar o está inmune o tiene el escudo entonces gira
                 //Destruye los triggers del tile de la curva para asegurarnos de que no gire varias veces

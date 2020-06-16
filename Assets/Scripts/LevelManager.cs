@@ -53,6 +53,8 @@ public class LevelManager : MonoBehaviour
     //Guarda la direccion que tendran que seguir los tiles
     Transform tileDirection;
 
+    GameObject initPositionTileDirection;
+
     //Minimo valor que tendrá la siguiente curva
     int minNextCurve = 6;
 
@@ -93,30 +95,15 @@ public class LevelManager : MonoBehaviour
         //Referencia al transform que está en la escena dentro del LevelManager object
         tileDirection = GameObject.Find("TileDirection").transform;
 
+        initPositionTileDirection = new GameObject();
+        initPositionTileDirection.transform.position = tileDirection.position;
+        initPositionTileDirection.transform.rotation = tileDirection.rotation;
+
         //Inicializamos la lista de los tiles activos
         activeTiles = new List<GameObject>();
 
-        //Se crea la primera curva del mapa
-        nextCurve = Random.Range(minNextCurve, maxNextCurve);
-
-        //Cargamos los tiles iniciales
-        for (int i = 0; i < amountTiles; i++)
-        {
-            //Nos aseguramos que ni el primero ni el segundo de los tiles
-            //tenga un obstaculo en el centro, por lo que le forzamos a poner 
-            //el tile que se encuentra en la posicion 0 (debemos asegurarnos 
-            //que este no tiene obstaculos en el centro)
-            if (i < 2)
-            {
-                SpawnTile(0);
-
-            }
-            else //Despues del 2do tile generamos aleatorios
-            {
-                SpawnTile();
-            }
-           
-        }
+        //Generamos los tiles iniciales
+        InitSpawn();
     }
 
     // Update is called once per frame
@@ -151,10 +138,50 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    //Spawn inicial de los tiles 
+    public void InitSpawn()
+    {
+        //Asignamos valor inicial a las variables
+        spawnZ = 0.0f;
+        tilesCount = 0;
+
+        tileDirection.position = initPositionTileDirection.transform.position;
+        tileDirection.rotation = initPositionTileDirection.transform.rotation;
+
+        Debug.LogError(tileDirection.rotation.eulerAngles);
+        Debug.LogError(initPositionTileDirection.transform.rotation.eulerAngles);
+
+
+        //Se crea la primera curva del mapa
+        nextCurve = Random.Range(minNextCurve, maxNextCurve);
+
+        //Cargamos los tiles iniciales
+        for (int i = 0; i < amountTiles; i++)
+        {
+            //Nos aseguramos que ni el primero ni el segundo de los tiles
+            //tenga un obstaculo en el centro, por lo que le forzamos a poner 
+            //el tile que se encuentra en la posicion 0 (debemos asegurarnos 
+            //que este no tiene obstaculos en el centro)
+            if (i < 2)
+            {
+                SpawnTile(0);
+
+            }
+            else //Despues del 2do tile generamos aleatorios
+            {
+                SpawnTile();
+            }
+
+        }
+    }
+
     //Metodo para spawnear o aparecer un tile en pantalla
     //prefabIndex: Nos indica que tile de la lista vamos a spawnear
     public void SpawnTile(int prefabIndex = -1)
     {
+        //Debug.LogError("SpawnZ: " + spawnZ);
+        //Debug.LogError("TilesCount " + tilesCount);
+
         //Objeto que tendrá el tile instanciado
         GameObject tile;
 
@@ -226,9 +253,9 @@ public class LevelManager : MonoBehaviour
             //la nueva direccion de los proximos tiles en linea recta
             //se actualiza despues de la posicion para que el siguiente tile tenga en cuenta el giro y no el actual
             tileDirection.rotation *= Quaternion.Euler(Vector3.up * side * 90);
-            
+
             //Si se mantiene en linea recta sigue la direccion de rotacion local
-            if(side == 0){
+            if (side == 0){
                 tile.transform.rotation = tileDirection.rotation;
             }
 
@@ -253,6 +280,24 @@ public class LevelManager : MonoBehaviour
         Destroy(activeTiles[0]);
         //Removemos de la lista el primero espacio para que se reordene
         activeTiles.RemoveAt(0);
+    }
+
+    //Metodo para eliminar todos los tiles activos en el juego.
+    public void DeleteAllTiles()
+    {
+        //Almacenamos el total de tiles activos en este momento, para poder
+        //recorrer la totalidad de la lista, porque al irse eliminando
+        //va disminuyendo esta variable
+        int totalActiveTiles = activeTiles.Count;
+        for (int i = 0; i < totalActiveTiles; i++)
+        {
+            //Destruimos el primer objeto
+            Destroy(activeTiles[0]);
+            //Removemos el primer objeto y esto mueve toda la lista
+            //quedando de primero el que estaba de segundo, por esto
+            //siempre eliminamos el tile que este de primero
+            activeTiles.RemoveAt(0);
+        }        
     }
 
     //Metodo para generar un index aleatorio de nuestros tiles

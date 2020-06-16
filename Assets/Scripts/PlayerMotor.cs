@@ -66,10 +66,13 @@ public class PlayerMotor : MonoBehaviour
     //Booleano que me indica si el giroscopio está disponible y activo
     //en el movil
     bool gyroEnabled;
+
     //Giroscopio del movil
     Gyroscope gyro;
+
     //Quaternion para manejar el giroscopio
     Quaternion rot;
+
     #region Variables del double touch
 
     private const float DOUBLE_TOUCH_TIME = 0.2f;
@@ -391,7 +394,7 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Metodo para revivir al personaje
-    public void Revive()
+    public void Revive(bool continueGame)
     {
         //Activo el trigger para que el personaje retome la animacion de pie
         animatorController.SetTrigger("Revive");
@@ -399,11 +402,15 @@ public class PlayerMotor : MonoBehaviour
         //Detenemos al personaje
         StopRun();
 
-        //Agrego inmunidad al player en los obstaculos actuales en la escena
-        Inmunity();
+        if (continueGame)
+        {
+            //Agrego inmunidad al player en los obstaculos actuales en la escena
+            Inmunity();
 
-        //Posicionamos en el centro al player
-        ResetPositionX();
+            //Posicionamos en el centro al player
+            ResetPositionX();
+        }
+      
     }
 
     //Metodo para dar inmunidad al personaje
@@ -681,6 +688,12 @@ public class PlayerMotor : MonoBehaviour
     public void ResetPositionX()
     {
         transform.position = (new Vector3(0, transform.position.y, transform.position.z));
+    }
+
+    //Metodo que posiciona al jugador en el punto inicial del juego.
+    public void ResetPosition()
+    {
+        transform.position = (new Vector3(0, 0, 0));
     }
 
 }

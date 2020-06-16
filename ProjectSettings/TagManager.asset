@@ -9,6 +9,7 @@ TagManager:
   - GameManager
   - Indestructible
   - ChangeDirection
+  - LevelManager
   layers:
   - Default
   - TransparentFX

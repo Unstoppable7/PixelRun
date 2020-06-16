@@ -142,42 +142,32 @@ public class GameManager : MonoBehaviour, IShopCustomer
     }
 
     //Metodo para terminar el juego
-    public void GameOver()
+    public void GameOver(bool save = false)
     {
-        //Totalizamos la puntacion final sumandole el nro de monedas recogidas
-        HighScore += Score + Coins;
+        if (save)
+        {
+            //Totalizamos la puntacion final sumandole el nro de monedas recogidas
+            HighScore += Score + Coins;
 
-        //Aumentamos las monedas del jugador con las modenas conseguidas 
-        //en la partida
-        Coins += CurrentCoins;
+            //Aumentamos las monedas del jugador con las modenas conseguidas 
+            //en la partida
+            Coins += CurrentCoins;
 
-        //Actualizamos las monedas disponibles del jugador
-        //userInterfaceManager.UpdateCoinsAvailable(Coins);
+            //Actualizamos la UI
+            userInterfaceManager.UpdateCoinsAvailable(Coins);
 
-        //TODO CAMBIAR, QUE AL PERDER SE REINICIE LA ESCENA (PlayAgain())
-        //Guardamos localmente los datos del jugador obtenidos en partida
-        SaveSystem.SavePlayer(this);
+            //Guardamos localmente los datos del jugador obtenidos en partida
+            SaveSystem.SavePlayer(this);
 
-        //Borramos todos los tiles activos
-        levelManager.DeleteAllTiles();
+        }
+        //Detenemos todas las corrutinas
+        StopAllCoroutines();
 
-        //Generamos nueamente tiles.
-        levelManager.InitSpawn();
+        //Actualizamos toda la UI
+        userInterfaceManager.RefreshUIAfterGameOver();
 
-        //Posicionamos al jugador en el inicio
-        motor.ResetPosition();
-
-        //Levantamos al player
-        motor.Revive(false);
-
-        //Restablecemos variables de juego
-        ResetGameVariables();
-
-        //Actualizo la UI
-        userInterfaceManager.ResfreshTextScore(0,0);
-
-        //Restablecemos a la posicion inicial la camara
-        ResetPositionCamera();
+        //Reiniciamos el nivel
+        PlayAgain();
     }
 
     void ResetGameVariables()
@@ -187,10 +177,31 @@ public class GameManager : MonoBehaviour, IShopCustomer
     }
 
     //Metodo para reiniciar el nivel
-    public void PlayAgain()
+    void PlayAgain()
     {
-        //Invocamos el metodo para recargar la escena con un retaso de 1sec
-        Invoke("LoadScene", 1f);        
+        //Borramos todos los tiles activos
+        levelManager.DeleteAllTiles();
+
+        //Generamos nuevamente tiles.
+        levelManager.InitSpawn();
+
+        //Posicionamos al jugador en el inicio
+        motor.ResetPosition();
+
+        //Levantamos al player
+        motor.Revive(false);
+
+        //Desactivamos las habilidades del jugador
+        motor.OffAllAbilities();
+
+        //Restablecemos variables de juego
+        ResetGameVariables();
+
+        //Actualizo la UI
+        userInterfaceManager.ResfreshTextScore(0, 0);
+
+        //Restablecemos a la posicion inicial la camara
+        ResetPositionCamera();
     }
     
     //Metodo para recargar la escena actual (Lo hacemos para poder llamarlo
@@ -412,5 +423,12 @@ public class GameManager : MonoBehaviour, IShopCustomer
     public void ResetPositionCamera()
     {
         camera.transform.position = initPositionCamera;
+    }
+
+    public void ResetGame()
+    {
+        PlayAgain();
+
+        ResumeGame();
     }
 }

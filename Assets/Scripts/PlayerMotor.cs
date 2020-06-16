@@ -117,16 +117,12 @@ public class PlayerMotor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.LogError("Right " + swipeRight);
-        //Debug.LogError("Left" + swipeLeft);
-
         //Si el personaje no está corriendo (al inicio del juego) no
         //hacemos nada
         if (!isRunning)
         {
             return;
         }
-        
         
         //Revisamos si se realizó un double tab
         CheckDoubleTab();
@@ -285,6 +281,8 @@ public class PlayerMotor : MonoBehaviour
     {
         isRunning = true;
         animatorController.SetFloat("Speed", speed);
+        animatorController.SetTrigger("StartRun");
+
     }
 
     //Me cambia el estado del personaje a detenido, de esta forma pausamos
@@ -633,8 +631,6 @@ public class PlayerMotor : MonoBehaviour
     {
         if (Input.touchCount > 0)
         {
-            //Debug.LogError("Start: " + startTouchPosition);
-
             Touch touch = Input.GetTouch(0);
             //bool band = true;
             //Si hay al menos un touch y este está en fase de inicio recien tocado
@@ -677,9 +673,6 @@ public class PlayerMotor : MonoBehaviour
 
                 }
             }           
-
-            //Debug.LogError("Start: " + startTouchPosition);
-            //Debug.LogError("End: " + endTouchPosition);
         }
         return false;
     }
@@ -696,4 +689,29 @@ public class PlayerMotor : MonoBehaviour
         transform.position = (new Vector3(0, 0, 0));
     }
 
+    public void OffAllAbilities()
+    {
+        isAttack = false;
+        isShield = false;
+        isImmune = false;
+
+        
+        //Se guarda el gameObject shield dentro del jugador
+        GameObject shield = transform.GetChild(1).gameObject;
+
+        //Se muestra el escudo
+        shield.SetActive(false);        
+    }
+
+    //Metodo para reiniciar los triggers de las animaciones StartRun y Revive
+    //sucedia que si tomaba un escudo y luego salia del juego hacia el menu, estos
+    //trigers por alguna razon seguian activos entonces al volver a iniciar una partida
+    //cuando el player moria, inmediatamente se levantaba y empezaba a correr sin presionar 
+    //nada, esto lo soluciona llamandolo en al presionar el boton menu y restart
+    //TODO mejorar de alguna forma
+    public void ResetTriggers()
+    {
+        animatorController.ResetTrigger("StartRun");
+        animatorController.ResetTrigger("Revive");
+    }
 }

@@ -23,8 +23,8 @@ public class UIManager : MonoBehaviour
     public GameObject pauseButton;
     //Menu luego de morir    
     public GameObject DeathMenu;
-    //private bool isPause = false;   
-
+    //Contenedor de la UI en el juego      
+    public GameObject playingUI;
     #endregion
 
     #region inHome
@@ -36,6 +36,8 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI totalCoins;
     //Texto de la cant de gemas
     public TextMeshProUGUI totalGems;
+    //Panel de botones
+    public GameObject buttonsPanel;
 
     #endregion
 
@@ -88,4 +90,10 @@ public class UIManager : MonoBehaviour
         totalCoins.text = coins.ToString();
     }
 
+    public void RefreshUIAfterGameOver()
+    {
+        homePanel.SetActive(true);
+        playingUI.SetActive(false);
+        buttonsPanel.SetActive(true);
+    }
 }

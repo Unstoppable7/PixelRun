@@ -143,14 +143,9 @@ public class LevelManager : MonoBehaviour
     {
         //Asignamos valor inicial a las variables
         spawnZ = 0.0f;
-        tilesCount = 0;
-
+        tilesCount = 0;        
         tileDirection.position = initPositionTileDirection.transform.position;
-        tileDirection.rotation = initPositionTileDirection.transform.rotation;
-
-        Debug.LogError(tileDirection.rotation.eulerAngles);
-        Debug.LogError(initPositionTileDirection.transform.rotation.eulerAngles);
-
+        tileDirection.rotation = initPositionTileDirection.transform.rotation;        
 
         //Se crea la primera curva del mapa
         nextCurve = Random.Range(minNextCurve, maxNextCurve);
@@ -178,10 +173,7 @@ public class LevelManager : MonoBehaviour
     //Metodo para spawnear o aparecer un tile en pantalla
     //prefabIndex: Nos indica que tile de la lista vamos a spawnear
     public void SpawnTile(int prefabIndex = -1)
-    {
-        //Debug.LogError("SpawnZ: " + spawnZ);
-        //Debug.LogError("TilesCount " + tilesCount);
-
+    {    
         //Objeto que tendrá el tile instanciado
         GameObject tile;
 

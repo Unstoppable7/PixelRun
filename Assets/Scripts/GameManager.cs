@@ -179,7 +179,13 @@ public class GameManager : MonoBehaviour, IShopCustomer
 
     //Metodo para continuar el juego
     public void ContinueGame()
-    {
+    {   
+        //Si el jugador está ahogado se saca del agua
+        if(motor.GetDrowned()){
+            //Saca al jugador del agua
+            motor.OutWater();
+        }
+
         //Reanudamos la partida
         ResumeGame();
 
@@ -252,7 +258,6 @@ public class GameManager : MonoBehaviour, IShopCustomer
         }
         
     }
-
 
     #region Encapsulamiento de metodos de la camara para acceder a ellos de manera publica desde GameManager
 

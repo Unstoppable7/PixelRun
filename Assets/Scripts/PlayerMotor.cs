@@ -71,6 +71,9 @@ public class PlayerMotor : MonoBehaviour
     //y reanudar a la misma velocidad
     float initTime;
 
+    //Nos dice si el jugador está ahogado o no
+    bool isDrowned;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -86,10 +89,19 @@ public class PlayerMotor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Si el personaje no está corriendo (al inicio del juego) no
-        //hacemos nada
+        bool isGrounded = IsGrounded();
+
+        //Si el personaje no está corriendo 
         if (!isRunning)
         {
+            //Si no está tocando el suelo se le aplica solo la gravedad
+            //Para que caiga cuando se estrelle y no quede en el aire
+            //y tambien solo si no está "ahogado" para que no siga bajando siempre
+            //si el jugador se ahoga y tarda en dar la opcion de continuar o salir
+            if(!isGrounded && !isDrowned){
+                verticalVelocity -= (gravity * Time.deltaTime);
+                controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
+            }
             return;
         }
 
@@ -97,7 +109,7 @@ public class PlayerMotor : MonoBehaviour
         Vector3 moveTarget = Vector3.zero;
 
         //Si el personaje está en el suelo o no
-        bool isGrounded = IsGrounded();
+        //bool isGrounded = IsGrounded();
 
         //Cambiamos el parametro si ha tocado el suelo
         animatorController.SetBool("isGrounded", isGrounded);
@@ -182,7 +194,14 @@ public class PlayerMotor : MonoBehaviour
             StartCoroutine(Attack());
         }
 
+        //Se aumenta la velocidad del juego poco a poco
         Time.timeScale = Mathf.Lerp(Time.timeScale, 1.5f, Time.deltaTime * accelerationTime);
+        
+        //Si el jugador se ahoga
+        if(transform.position.y < -5 && !isDrowned){
+            isDrowned = true;
+            Crash();
+        }
     }
 
     //Metodo para verificar si el personaje está tocando el suelo
@@ -243,7 +262,7 @@ public class PlayerMotor : MonoBehaviour
 
             //Si no muere
             else{
-                Crash();
+                Crash(hit.collider);
             }
         }
 
@@ -251,19 +270,19 @@ public class PlayerMotor : MonoBehaviour
         else if(hit.gameObject.CompareTag("Indestructible")){
             //Y no tiene el escudo ni es inmune entonces muere
             if(!isShield && !isImmune){
-                Crash();
-            }
-
-            //Si no traspasa el objeto
-            else{
-               hit.collider.isTrigger = true;
+                Crash(hit.collider);
             }
         }
     }
 
     //Metodo de muerte del personaje
-    void Crash()
+    void Crash(Collider collider = null)
     {
+        //Se destruye el collider del objecto con el que colisiona
+        //ya que como se aplica la gravedad cuando revive
+        //si queda encima de un collider no logra hacer la animacion de morir
+        Destroy(collider);
+
         //Cambiamos la velocidad del juego para que aumente de velocidad las animaciónes
         //y todo a la vez, asi no es necesario aumentar la velocidad del jugador
         //ya que se moveria muy rapido y no estaría uniforme con los tiles del mapa
@@ -366,20 +385,23 @@ public class PlayerMotor : MonoBehaviour
             }
         }
 
-        /*//Guarda los objectos con el tag Indestructible
         GameObject[] indestructibles = GameObject.FindGameObjectsWithTag("Indestructible");
 
-        //Recorre el array de indestructible
+        //Recorro el array de indestructibles
         foreach (GameObject indestructible in indestructibles)
-        {                  
-            Collider[] colliders = indestructible.GetComponents<Collider>();
+        {
+            //Si el object indestructible pertenece a el cambio de direccion
+            //no destruye sus colliders
+            if(!indestructible.transform.parent.CompareTag("ChangeDirection")){
+                Collider[] colliders = indestructible.GetComponents<Collider>();
 
-            //Vuelvo trigger los colliders de los indestructible
-            //Desactiva los que tienen varios colliders
-            foreach (Collider collider in colliders){
-                collider.isTrigger = true;
+                //Vuelvo trigger los colliders de los indestructibles
+                //Desactiva los que tienen varios colliders
+                foreach (Collider collider in colliders){
+                    collider.isTrigger = true;
+                }
             }
-        }*/
+        }
 
         //Se asigna el ultimo tile hasta donde el jugador es inmune
         LevelManager.sharedInstance.SetLastImmunityTile();
@@ -454,6 +476,11 @@ public class PlayerMotor : MonoBehaviour
         this.isShield = isShield;
     }
 
+    //Regresa si está ahogado o no
+    public bool GetDrowned(){
+        return isDrowned;
+    }
+
     #endregion
 
 
@@ -524,4 +551,13 @@ public class PlayerMotor : MonoBehaviour
     }
 
     #endregion
+
+    //Saca al jugador del agua. Se llama desde GameManager antes de empezar la coroutina
+    //del contador para volver a jugar
+    public void OutWater(){
+        isDrowned = false;
+        controller.enabled = false;
+        transform.position = new Vector3(transform.position.x, 5f, transform.position.z);
+        controller.enabled = true;
+    }
 }

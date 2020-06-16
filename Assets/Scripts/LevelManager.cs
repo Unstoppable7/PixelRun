@@ -20,11 +20,11 @@ public class MapPart{
     public int tilesCount;
 
     //Minimo de tiles que puede tener la parte del mapa
-    [Range(100, 200)]
+    [Range(10, 500)]
     public int minTilesCount;
 
     //Maximo de tiles que puede tener la parte del mapa
-    [Range(500, 1000)]
+    [Range(10, 500)]
     public int maxTilesCount;
 
     //Asigna la cantidad aleatorea de tiles que tendrá la parte del mapa
@@ -148,9 +148,13 @@ public class LevelManager : MonoBehaviour
             //que este no tiene obstaculos en el centro)
             if (i < 2)
             {
-                SpawnTile(RandomTileIndex(2));
-
+                //Al inicio del juego, se eligen los dos primeros tiles 
+                //(esos dos primeros son seguros en el centro)
+                //La posición 0 contendrá el tile de inicio de la priemra parte del mapa
+                //la posición 1 tambien será seguro en el centro
+                SpawnTile(i);
             }
+
             else //Despues del 2do tile generamos aleatorios
             {
                 SpawnTile();
@@ -162,6 +166,11 @@ public class LevelManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Si el jugador no está corriendo que no haga nada
+        if(!GameManager.sharedInstance.IsPlayerRunning()){
+            return;
+        }
+
         //Si la posicion del jugador en z menos la zona segura es mayor a
         //que la posicion que hacemos spawn los tiles menos la multiplicacion
         //entre la cantidad de tiles en pantalla y el largo de c/u de ellos
@@ -171,13 +180,14 @@ public class LevelManager : MonoBehaviour
         {
             //Creamos un nuevo tile en nuestro camino
             SpawnTile();
+
             //Eliminamos el ultimo tile
             DeleteLastTile();
 
-            //Si el tile hasta donde el jugador es inmune es mayor a 3
-            //mayor a tres para tomar en cuenta los tiles que no
+            //Si el tile hasta donde el jugador es inmune es mayor a 4
+            //mayor a 4 para tomar en cuenta los tiles que no
             //han sido destruidos aun
-            if(lastImmunityTile > 3){
+            if(lastImmunityTile > 4){
                 //Se va restando cuando se elimina un tile anterior ya que tambien se va
                 //disminuyendo
                 lastImmunityTile--;
@@ -208,8 +218,19 @@ public class LevelManager : MonoBehaviour
                 //Se elige una direccion aleatorea
                 side = DIRECTIONS[Random.Range(0, DIRECTIONS.Length)];
 
-                //Se elige la cantidad de tiles de la siguiente curva
-                nextCurve = Random.Range(minNextCurve, maxNextCurve);
+                //Si la siguiente curva y la cantidad de tiles de la parte actual son iguales
+                //(si la proxima curva será el inicio de la proxima parte)
+                if(nextCurve - currentPart.tilesCount == 0){
+                    //atrasamos la curva 1 tile mas para que se pueda poner el prefab
+                    //de inicio de la parte siguiente del mapa
+                    nextCurve++;
+                    side = 0;
+                }
+
+                else{
+                    //Se elige la cantidad de tiles de la siguiente curva
+                    nextCurve = Random.Range(minNextCurve, maxNextCurve);
+                }
 
                 //Se asigna a cero la cantidad de tiles despues de la curva ya que se crea una nueva curva
                 tilesCount = 0;
@@ -219,29 +240,47 @@ public class LevelManager : MonoBehaviour
                 side = 0;
             }
 
+
             //Si la direccion va en linea recta
             //instancia los tiles de linea recta
             if(side == 0){
-                //Los dos primeros tiles despues de la curva serán seguros en el centro
-                if(tilesCount > 0 && tilesCount < 3){
+                //El primer tile de la nueva parte del mapa será el prefab en la posición 0 del array
+                //Solo se instancia una vez este prefab durante toda la creción de la nueva parte
+                //Ya que este le va a indicar al usuario que está entrando a la nueva parte del mapa
+                if(partTilesCount < 1){
                     tile = Instantiate(currentPart.straightTiles[0]) as GameObject;
                 }
 
+                else if(partTilesCount < 2){
+                    tile = Instantiate(currentPart.straightTiles[1]) as GameObject;
+                }
+
+                //Los dos tiles despues de la curva y la entrada a la nueva parte serán seguros en el centro
+                else if(tilesCount < 3){
+                    //Se instancia el de la posicion 1 ya que el de la posición 0 es la entrada a la nueva parte
+                    //(Solo queremos que se instancie la entrada a esa parte una sola vez)
+                    tile = Instantiate(currentPart.straightTiles[1]) as GameObject;
+                }
+
+                //Si siguen los prefabs en linea recta (no hay una curva antes)
                 else{
-                    tile = Instantiate(currentPart.straightTiles[RandomTileIndex(currentPart.straightTiles.Count)]) as GameObject;
+                    //Colocamos desde el 1 hasta el ultimo prefab del array que tiene los prefabs en direccion recta
+                    //Comienza en 1 porque queremos que la posición 0 de los array en linea recta
+                    //contenga el prefab de inicio de esa parte
+                    tile = Instantiate(currentPart.straightTiles[RandomTileIndex(1, currentPart.straightTiles.Count)]) as GameObject;
                 }
             }
 
             //Si la direccion cambia a la derecha
             //instancia los tiles de derecha
             else if(side == 1){
-                tile = Instantiate(currentPart.rightTiles[RandomTileIndex(currentPart.rightTiles.Count)]) as GameObject;
+                tile = Instantiate(currentPart.rightTiles[RandomTileIndex(0, currentPart.rightTiles.Count)]) as GameObject;
             }
 
             //Si la direccion cambia a la izquierda
             //instancia los tiles de izquierda
             else{
-                tile = Instantiate(currentPart.leftTiles[RandomTileIndex(currentPart.leftTiles.Count)]) as GameObject;
+                tile = Instantiate(currentPart.leftTiles[RandomTileIndex(0, currentPart.leftTiles.Count)]) as GameObject;
             }
         }
         else
@@ -295,14 +334,21 @@ public class LevelManager : MonoBehaviour
         //Se aumenta la cantidad de tiles de una parte del mapa
         partTilesCount++;
 
-        if(partTilesCount >= currentPart.tilesCount){
+        //Si la cantidad de tiles de la parte del mapa llega al limite
+        if(currentPart.tilesCount - partTilesCount == 0){
+            //Se selecciona la parte siguiente del array de partes del mapa
             int nextIndex = mapParts.IndexOf(currentPart) + 1;
 
+            //Si es la ultima parte se regresa a la primera
             if(nextIndex >= mapParts.Count){
                 nextIndex = 0;
             }
             
+            //Se reasigna la parte actual que se va a empezar a instanciar
             currentPart = mapParts[nextIndex];
+
+            //Se regresa a 0 la cantidad de tiles de la nueva parte del mapa
+            //que se va a empezar a crear
             partTilesCount = 0;
         }
     }
@@ -318,7 +364,7 @@ public class LevelManager : MonoBehaviour
 
     //Metodo para generar un index aleatorio de nuestros tiles
     //recibe como parametro la cantidad de items de cada lista
-    int RandomTileIndex(int listCount)
+    int RandomTileIndex(int initIndex, int listCount)
     {
         //Si nuestra lista de tiles totales está vacia o tiene solo 1
         //no tenemos de donde seleccionar aleatoriamente
@@ -333,7 +379,7 @@ public class LevelManager : MonoBehaviour
         //Mientras sean iguales el ultimo con el random, buscame otro
         while(randomIndex == lastTileIndex)
         {
-            randomIndex = Random.Range(0, listCount);
+            randomIndex = Random.Range(initIndex, listCount);
         }
 
         //Reescribimos el index del ultimo tile creado

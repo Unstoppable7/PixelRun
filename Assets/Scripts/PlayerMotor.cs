@@ -7,7 +7,7 @@ public class PlayerMotor : MonoBehaviour
 {
     //Distancia entre c/u de los limites
     const float DISTANCE = 2.5f;
-    
+
     //Velocidad de rotacion del personaje cuando cambia de carril
     //o cuanto queremos que rote
     const float TURN_SPEED = 0.05f;
@@ -25,8 +25,9 @@ public class PlayerMotor : MonoBehaviour
     //Velocidad vertical, define la vel con la que el personaje iniciará
     //su descenso despues de saltar
     float verticalVelocity;
+    [SerializeField]
     //Velocidad del personaje
-    float speed = 5f;
+    float speed = 10f;
 
     //Tiempo en segundos que dura en acelerar desde la velocidad inicial a la maxima
     float accelerationTime = 0.01f;
@@ -121,7 +122,7 @@ public class PlayerMotor : MonoBehaviour
         StartLimits();
     }
 
-    
+
 
     // Update is called once per frame
     void Update()
@@ -137,14 +138,14 @@ public class PlayerMotor : MonoBehaviour
             //Para que caiga cuando se estrelle y no quede en el aire
             //y tambien solo si no está "ahogado" para que no siga bajando siempre
             //si el jugador se ahoga y tarda en dar la opcion de continuar o salir
-            if(!isGrounded && !isDrowned){
+            if (!isGrounded && !isDrowned) {
                 verticalVelocity -= (gravity * Time.deltaTime);
                 controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
             }
             return;
         }
-        
-        
+
+
         //Revisamos si se realizó un double tab
         CheckDoubleTab();
 
@@ -152,7 +153,7 @@ public class PlayerMotor : MonoBehaviour
         moveTarget = Vector3.zero;
 
         //Si el personaje está en el suelo o no
-        bool isGrounded = IsGrounded();
+        isGrounded = IsGrounded();
 
         //Cambiamos el parametro si ha tocado el suelo
         animatorController.SetBool("isGrounded", isGrounded);
@@ -168,7 +169,7 @@ public class PlayerMotor : MonoBehaviour
 
             //Revisamos si se realizó un swipe y no está atacando                   
             //Si presiona la barra espaciadora o hace swipe hacia arriba
-            if ( (Input.GetKeyDown(KeyCode.Space) || SwipeCheck(1)) && !isDestroy)           
+            if ((Input.GetKeyDown(KeyCode.Space) || SwipeCheck(1)) && !isDestroy)
             {
                 //SwipeUp en falso
                 //swipeUp = false;
@@ -177,17 +178,17 @@ public class PlayerMotor : MonoBehaviour
                 verticalVelocity = jump;
 
                 //Si delante del jugador hay un obstaculo para realizar el salto largo
-                if(bigJump){
+                if (bigJump) {
                     animatorController.SetTrigger("bigJump");
                 }
 
-                else{
+                else {
                     //Disparamos la animacion de salto
                     animatorController.SetTrigger("Jump");
                 }
             }
         }//Si no está en el suelo (está en el aire)
-        else 
+        else
         {
             //Vamos disminuyendo la vel vertical con respecto
             //a la gravedad para que vaya cayendo poco a poco
@@ -208,9 +209,9 @@ public class PlayerMotor : MonoBehaviour
                             Input.GetAxis("Horizontal") : 
                             (Input.acceleration.x) * sensitivityAccelerometer);
         **/
-        
-        #if UNITY_EDITOR
-            moveTarget = transform.forward + transform.right * Input.GetAxis("Horizontal");
+
+#if UNITY_EDITOR
+        moveTarget = transform.forward + transform.right * Input.GetAxis("Horizontal");
 #else
             //Con Giroscopio
             moveTarget = (transform.forward + (transform.right
@@ -244,7 +245,7 @@ public class PlayerMotor : MonoBehaviour
         #endregion
 
         //Jugador se agacha una sola vez y solo si está en el suelo
-        if( (Input.GetKeyDown(KeyCode.DownArrow) || SwipeCheck(2)) && !isCrouch && isGrounded){
+        if ((Input.GetKeyDown(KeyCode.DownArrow) || SwipeCheck(2)) && !isCrouch && isGrounded) {
             //swipeDown = false;        
             isCrouch = true;
             StartCoroutine(Crouch());
@@ -252,13 +253,13 @@ public class PlayerMotor : MonoBehaviour
 
         //Si el jugador puede atacar una sola vez y presiona la w o hace 
         //double touch para atacar
-        if( isAttack && (Input.GetKeyDown(KeyCode.W) || doubleTouch) ){
+        if (isAttack && (Input.GetKeyDown(KeyCode.W) || doubleTouch)) {
 
             //Hacemos isAttack false para que esté lista de una vez
             //para la animacion de ataque si se agarra otro powerup de ataque mientras
             //está atacando 
             isAttack = false;
-            
+
             //isDestroy se pone a true y nos dice que puede destruir los obstaculos
             //con los que choca el personaje
             isDestroy = true;
@@ -274,9 +275,9 @@ public class PlayerMotor : MonoBehaviour
 
         //Se aumenta la velocidad del juego poco a poco
         Time.timeScale = Mathf.Lerp(Time.timeScale, 1.5f, Time.deltaTime * accelerationTime);
-        
+
         //Si el jugador se ahoga
-        if(transform.position.y < -5 && !isDrowned){
+        if (transform.position.y < -5 && !isDrowned) {
             isDrowned = true;
             Crash();
         }
@@ -324,36 +325,36 @@ public class PlayerMotor : MonoBehaviour
     //detectar las colisiones del jugador
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if(hit.gameObject.CompareTag("Obstacle")){
+        if (hit.gameObject.CompareTag("Obstacle")) {
             //Si choca con obstaculos y tiene el escudo
             //vuelve el collider del obstaculo a trigger
             //para que lo atraviese
-            if(isShield){
+            if (isShield) {
                 hit.collider.isTrigger = true;
                 return;
             }
-            
+
             //Si puede destruir, destruye el obstaculo con el que choca
-            else if(isDestroy){
+            else if (isDestroy) {
                 Destroy(hit.gameObject);
             }
 
             //Si no muere
-            else{
+            else {
                 Crash(hit.collider);
             }
         }
 
         //Si se estrella con algo que no se puede destruir
-        else if(hit.gameObject.CompareTag("Indestructible")){
+        else if (hit.gameObject.CompareTag("Indestructible")) {
             //Y no tiene el escudo ni es inmune entonces muere
-            if(!isShield && !isImmune){
+            if (!isShield && !isImmune) {
                 Crash();
             }
 
             //Si no traspasa el objeto
-            else{
-               hit.collider.isTrigger = true;
+            else {
+                hit.collider.isTrigger = true;
             }
         }
     }
@@ -397,7 +398,7 @@ public class PlayerMotor : MonoBehaviour
 
     //Metodo que comprueba si adelante hay un obstaculo con el que
     //se pueda realizar la animacion de salto grande
-    private bool isBigJump(){
+    private bool isBigJump() {
         Ray forwardRay = new Ray(new Vector3(controller.bounds.center.x,
                                             controller.bounds.center.y,
                                             (controller.bounds.center.z + controller.bounds.extents.z)), transform.forward);
@@ -406,7 +407,7 @@ public class PlayerMotor : MonoBehaviour
 
         Debug.DrawRay(forwardRay.origin, forwardRay.direction * 3.5f, Color.red);
 
-        if(Physics.Raycast(forwardRay, out hit, 3.5f, LayerMask.GetMask("BigJump"))){
+        if (Physics.Raycast(forwardRay, out hit, 3.5f, LayerMask.GetMask("BigJump"))) {
             return true;
         }
 
@@ -415,7 +416,7 @@ public class PlayerMotor : MonoBehaviour
 
     //Metodo que realiza la animacion de deslizarse en el suelo y
     // bajar el collider para simular que está agachado
-    private IEnumerator Crouch(){
+    private IEnumerator Crouch() {
         animatorController.SetTrigger("Slide");
 
         controller.height /= 2;
@@ -424,7 +425,7 @@ public class PlayerMotor : MonoBehaviour
         //Levanta al jugador en un tiempo aproximado a lo que dura la
         //animación de deslizarse
         yield return new WaitForSeconds(1.2f);
-        
+
         //levanta al jugador colocando de nuevo la altura y
         //centro del controller
         controller.height *= 2;
@@ -460,12 +461,12 @@ public class PlayerMotor : MonoBehaviour
 
         //Recorro el array de obstaculos
         foreach (GameObject obstacle in obstacles)
-        {                  
+        {
             Collider[] colliders = obstacle.GetComponents<Collider>();
 
             //Vuelvo trigger los colliders de los obstaculos
             //Desactiva los que tienen varios colliders
-            foreach (Collider collider in colliders){
+            foreach (Collider collider in colliders) {
                 collider.isTrigger = true;
             }
         }
@@ -478,12 +479,12 @@ public class PlayerMotor : MonoBehaviour
         {
             //Si el object indestructible pertenece a el cambio de direccion
             //no destruye sus colliders
-            if(!indestructible.transform.parent.CompareTag("ChangeDirection")){
+            if (!indestructible.transform.parent.CompareTag("ChangeDirection")) {
                 Collider[] colliders = indestructible.GetComponents<Collider>();
 
                 //Vuelvo trigger los colliders de los indestructibles
                 //Desactiva los que tienen varios colliders
-                foreach (Collider collider in colliders){
+                foreach (Collider collider in colliders) {
                     collider.isTrigger = true;
                 }
             }
@@ -497,13 +498,13 @@ public class PlayerMotor : MonoBehaviour
 
     //Cambia la rotacion del jugador a la nueva direccion
     //se llama desde ChangeDirection.cs
-    public void ChangeDirection(int direction, float degrees){
+    public void ChangeDirection(int direction, float degrees) {
         transform.rotation *= Quaternion.Euler(0, degrees * direction, 0);
     }
 
     //Centra al jugador en la posicion correcta antes de seguir avanzando
     //cuando hay un giro. Se llama desde ChangeDirection.cs
-    public void PerfectCenter(Vector3 center){
+    public void PerfectCenter(Vector3 center) {
         //Primero desactivamos el controller para poder centrarlo con transform
         controller.enabled = false;
         //Se centra el jugador justo en la posicion del tile de la curva
@@ -513,7 +514,7 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Inicializa la posicion de los colliders de los limites en el mapa
-    void StartLimits(){
+    void StartLimits() {
         GameObject playerLimits = GameObject.Find("PlayerLimits");
 
         BoxCollider[] limitsCollider = playerLimits.GetComponents<BoxCollider>();
@@ -528,52 +529,52 @@ public class PlayerMotor : MonoBehaviour
     #region Metodos Geters y Seters del jugador
 
     //Retorna si el jugador está corriendo o no
-    public bool GetIsRunning(){
+    public bool GetIsRunning() {
         return isRunning;
     }
 
     //Retorna si el jugador es inmune o no
-    public bool GetImmune(){
+    public bool GetImmune() {
         return isImmune;
     }
 
     //Retorna si el jugador tiene escudo o no
-    public bool GetShield(){
+    public bool GetShield() {
         return isShield;
     }
 
     //Retorna si el jugador está destruyendo o no
-    public bool GetDestroy(){
+    public bool GetDestroy() {
         return isDestroy;
     }
 
     //Asigna el valor a isImmune
-    public void SetImmune(bool isImmune){
+    public void SetImmune(bool isImmune) {
         this.isImmune = isImmune;
     }
 
     //Asigna el valor a isAttack
-    public void SetAttack(bool isAttack){
+    public void SetAttack(bool isAttack) {
         this.isAttack = isAttack;
     }
-    
+
     //Asigna el valor a isShield
-    public void SetShield(bool isShield){
+    public void SetShield(bool isShield) {
         this.isShield = isShield;
     }
 
     //Regresa si está ahogado o no
-    public bool GetDrowned(){
+    public bool GetDrowned() {
         return isDrowned;
     }
 
     #endregion
 
 
-#region Animaciones de immunity, attack y shield
+    #region Animaciones de immunity, attack y shield
 
     //Hace la animacion del ataque
-    IEnumerator Attack(){
+    IEnumerator Attack() {
         //Realizamos la animacion de attack
         animatorController.SetTrigger("Attack");
 
@@ -596,7 +597,7 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Hace la animacion del escudo
-    public IEnumerator Shield(float time){
+    public IEnumerator Shield(float time) {
         //Se guarda el gameObject shield dentro del jugador
         GameObject shield = transform.GetChild(1).gameObject;
 
@@ -612,7 +613,7 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Hace la animacion de la inmunidad
-    IEnumerator InmunityShield(){
+    IEnumerator InmunityShield() {
         //Se guarda el gameObject shield dentro del jugador
         GameObject shield = transform.GetChild(1).gameObject;
 
@@ -623,7 +624,7 @@ public class PlayerMotor : MonoBehaviour
         Color inmmuneShieldColor = new Color32(246, 255, 146, 89);
 
         //Mientras que sea inmune muestro el escudo de color amarillo
-        while(isImmune){
+        while (isImmune) {
             shield.GetComponent<Renderer>().material.color = inmmuneShieldColor;
             shield.SetActive(true);
             yield return null;
@@ -639,13 +640,15 @@ public class PlayerMotor : MonoBehaviour
 
     //Saca al jugador del agua. Se llama desde GameManager antes de empezar la coroutina
     //del contador para volver a jugar
-    public void OutWater(){
+    public void OutWater() {
         isDrowned = false;
         controller.enabled = false;
         transform.position = new Vector3(transform.position.x, 5f, transform.position.z);
         controller.enabled = true;
     }
 
+    #endregion
+
     //Metodo que me verifica si el dispositivo tiene giroscopio y de ser asi
     //lo activa
     private bool EnableGyro()
@@ -674,7 +677,7 @@ public class PlayerMotor : MonoBehaviour
 
             //Si el tiempo desde el ultimo touch es menor o igual al
             //tiempo estimado ha considerarse como double touch
-            if(timeSinceLastTouch <= DOUBLE_TOUCH_TIME && Time.time > DOUBLE_TOUCH_TIME+1)
+            if (timeSinceLastTouch <= DOUBLE_TOUCH_TIME && Time.time > DOUBLE_TOUCH_TIME + 1)
             {
                 doubleTouch = true;
             }
@@ -682,7 +685,7 @@ public class PlayerMotor : MonoBehaviour
             //comenzó la aplicacion
             lastTouchTime = Time.time;
         }
-        
+
     }
 
     //Metodo para verificar si se realizo un swap
@@ -734,7 +737,7 @@ public class PlayerMotor : MonoBehaviour
                     return true;
 
                 }
-            }           
+            }
 
             //Debug.LogError("Start: " + startTouchPosition);
             //Debug.LogError("End: " + endTouchPosition);
@@ -747,220 +750,4 @@ public class PlayerMotor : MonoBehaviour
     {
         transform.position = (new Vector3(0, transform.position.y, transform.position.z));
     }
-
-}
-    //Saca al jugador del agua. Se llama desde GameManager antes de empezar la coroutina
-    //del contador para volver a jugar
-    public void OutWater(){
-        isDrowned = false;
-        controller.enabled = false;
-        transform.position = new Vector3(transform.position.x, 5f, transform.position.z);
-        controller.enabled = true;
-    }
-}
-    //Metodo que me verifica si el dispositivo tiene giroscopio y de ser asi
-    //lo activa
-    private bool EnableGyro()
-    {
-        //Si el dispositivo soporta giroscoio
-        if (SystemInfo.supportsGyroscope)
-        {
-            //Referenciamos la variable a el input del dispositivo
-            gyro = Input.gyro;
-            //Habilitamos el giroscopio
-            gyro.enabled = true;
-
-            return true;
-        }
-        return false;
-    }
-
-    //Metodo para revisar cuando se realiza un double touch
-    private void CheckDoubleTab()
-    {
-        //Si se realiza al menos un touch
-        if (Input.GetMouseButtonDown(0))
-        {
-            //Almaceno el tiempo desde el ultimo touch
-            float timeSinceLastTouch = Time.time - lastTouchTime;
-
-            //Si el tiempo desde el ultimo touch es menor o igual al
-            //tiempo estimado ha considerarse como double touch
-            if(timeSinceLastTouch <= DOUBLE_TOUCH_TIME && Time.time > DOUBLE_TOUCH_TIME+1)
-            {
-                doubleTouch = true;
-            }
-            //Asigno el tiempo en que se realizó el ultimo touch desde que 
-            //comenzó la aplicacion
-            lastTouchTime = Time.time;
-        }
-        
-    }
-
-    //Metodo para verificar si se realizo un swap
-    //direction: Arriba = 1, Abajo = 2, Derecha = 3, Izquierda = 4
-    public bool SwipeCheck(int direction)
-    {
-        if (Input.touchCount > 0)
-        {
-            //Debug.LogError("Start: " + startTouchPosition);
-
-            Touch touch = Input.GetTouch(0);
-            //bool band = true;
-            //Si hay al menos un touch y este está en fase de inicio recien tocado
-            //sin soltarse, guardo la posicion inicial de ese primer touch
-            if (touch.phase == TouchPhase.Began)
-            {
-                startTouchPosition = touch.position;
-            }
-
-            //Si hay al menos un touch y este está en fase de salida o recien soltado
-            if (touch.phase == TouchPhase.Moved)
-            {
-                //Guardo la posicion final de este touch
-                endTouchPosition = touch.position;
-
-                if (endTouchPosition.y - 200f > startTouchPosition.y && direction == 1)
-                {
-                    //swipeUp = true;
-                    return true;
-                }
-
-                if (endTouchPosition.y + 200f < startTouchPosition.y && direction == 2)
-                {
-                    //swipeDown = true;
-                    return true;
-
-                }
-
-                if (endTouchPosition.x - 200f > startTouchPosition.x && direction == 3)
-                {
-                    //swipeRight = true;
-                    return true;
-
-                }
-
-                if (endTouchPosition.x + 200f < startTouchPosition.x && direction == 4)
-                {
-                    //swipeLeft = true;
-                    return true;
-
-                }
-            }           
-
-            //Debug.LogError("Start: " + startTouchPosition);
-            //Debug.LogError("End: " + endTouchPosition);
-        }
-        return false;
-    }
-
-    //Metodo que posiciona al jugador en el punto central del mapa.
-    public void ResetPositionX()
-    {
-        transform.position = (new Vector3(0, transform.position.y, transform.position.z));
-    }
-
-}
-    //Metodo que me verifica si el dispositivo tiene giroscopio y de ser asi
-    //lo activa
-    private bool EnableGyro()
-    {
-        //Si el dispositivo soporta giroscoio
-        if (SystemInfo.supportsGyroscope)
-        {
-            //Referenciamos la variable a el input del dispositivo
-            gyro = Input.gyro;
-            //Habilitamos el giroscopio
-            gyro.enabled = true;
-
-            return true;
-        }
-        return false;
-    }
-
-    //Metodo para revisar cuando se realiza un double touch
-    private void CheckDoubleTab()
-    {
-        //Si se realiza al menos un touch
-        if (Input.GetMouseButtonDown(0))
-        {
-            //Almaceno el tiempo desde el ultimo touch
-            float timeSinceLastTouch = Time.time - lastTouchTime;
-
-            //Si el tiempo desde el ultimo touch es menor o igual al
-            //tiempo estimado ha considerarse como double touch
-            if(timeSinceLastTouch <= DOUBLE_TOUCH_TIME && Time.time > DOUBLE_TOUCH_TIME+1)
-            {
-                doubleTouch = true;
-            }
-            //Asigno el tiempo en que se realizó el ultimo touch desde que 
-            //comenzó la aplicacion
-            lastTouchTime = Time.time;
-        }
-        
-    }
-
-    //Metodo para verificar si se realizo un swap
-    //direction: Arriba = 1, Abajo = 2, Derecha = 3, Izquierda = 4
-    public bool SwipeCheck(int direction)
-    {
-        if (Input.touchCount > 0)
-        {
-            //Debug.LogError("Start: " + startTouchPosition);
-
-            Touch touch = Input.GetTouch(0);
-            //bool band = true;
-            //Si hay al menos un touch y este está en fase de inicio recien tocado
-            //sin soltarse, guardo la posicion inicial de ese primer touch
-            if (touch.phase == TouchPhase.Began)
-            {
-                startTouchPosition = touch.position;
-            }
-
-            //Si hay al menos un touch y este está en fase de salida o recien soltado
-            if (touch.phase == TouchPhase.Moved)
-            {
-                //Guardo la posicion final de este touch
-                endTouchPosition = touch.position;
-
-                if (endTouchPosition.y - 200f > startTouchPosition.y && direction == 1)
-                {
-                    //swipeUp = true;
-                    return true;
-                }
-
-                if (endTouchPosition.y + 200f < startTouchPosition.y && direction == 2)
-                {
-                    //swipeDown = true;
-                    return true;
-
-                }
-
-                if (endTouchPosition.x - 200f > startTouchPosition.x && direction == 3)
-                {
-                    //swipeRight = true;
-                    return true;
-
-                }
-
-                if (endTouchPosition.x + 200f < startTouchPosition.x && direction == 4)
-                {
-                    //swipeLeft = true;
-                    return true;
-
-                }
-            }           
-
-            //Debug.LogError("Start: " + startTouchPosition);
-            //Debug.LogError("End: " + endTouchPosition);
-        }
-        return false;
-    }
-
-    //Metodo que posiciona al jugador en el punto central del mapa.
-    public void ResetPositionX()
-    {
-        transform.position = (new Vector3(0, transform.position.y, transform.position.z));
-    }
-
 }

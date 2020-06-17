@@ -38,7 +38,11 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
+<<<<<<< HEAD
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+=======
   m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+>>>>>>> bdb1d4cf7e43f18f283fc121f96136efd5c99db6
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4446,6 +4450,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9254619e1ce6fc4fb3cbe10f79cf30a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+  straightTiles:
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
+  - {fileID: 8491994133903581514, guid: 9d49a6e0ab08d3f4db8bb13ce06e4d25, type: 3}
+  - {fileID: 8261575744894422771, guid: 9018106256a757f4ebdfec18fea7071f, type: 3}
+  - {fileID: 842645792957906828, guid: 40bdb46edfbe0114e8c40dcab3ff694f, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
+  - {fileID: 8491994133903581514, guid: 9d49a6e0ab08d3f4db8bb13ce06e4d25, type: 3}
+  - {fileID: 3806490008457862567, guid: 27b0151200620c14da2a1886d2b5e15c, type: 3}
+  - {fileID: 9039203914135454580, guid: 68abd87666da61f4ebe24e58af92f39b, type: 3}
+  - {fileID: 8261575744894422771, guid: 9018106256a757f4ebdfec18fea7071f, type: 3}
+  rightTiles:
+  - {fileID: 4699033142777036512, guid: 849d831f5b802834fb23296aa614df99, type: 3}
+  leftTiles:
+  - {fileID: 8768900296586500109, guid: 93a1f357e1958524eb6de80666e088d1, type: 3}
+=======
   mapParts:
   - straightTiles:
     - {fileID: 4647966175387094839, guid: 06ba29fefd7fc4c4cb3ca52860325edd, type: 3}
@@ -4500,6 +4523,7 @@ MonoBehaviour:
     tilesCount: 0
     minTilesCount: 10
     maxTilesCount: 110
+>>>>>>> bdb1d4cf7e43f18f283fc121f96136efd5c99db6
 --- !u!4 &1401773347
 Transform:
   m_ObjectHideFlags: 0

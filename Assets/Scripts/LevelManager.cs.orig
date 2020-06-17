@@ -130,8 +130,7 @@ public class LevelManager : MonoBehaviour
     void Start()
     {
         //Referenciamos el transform del personaje
-        playerTransform = GameObject.FindGameObjectWithTag("Player")
-                            .transform;
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         
         //Referencia al transform que está en la escena dentro del LevelManager object
         tileDirection = GameObject.Find("TileDirection").transform;
@@ -143,8 +142,36 @@ public class LevelManager : MonoBehaviour
         //Inicializamos la lista de los tiles activos
         activeTiles = new List<GameObject>();
 
+<<<<<<< HEAD
+        //Se crea la primera curva del mapa
+        nextCurve = Random.Range(minNextCurve, maxNextCurve);
+
+        //Cargamos los tiles iniciales
+        for (int i = 0; i < amountTiles; i++)
+        {
+            //Nos aseguramos que ni el primero ni el segundo de los tiles
+            //tenga un obstaculo en el centro, por lo que le forzamos a poner 
+            //el tile que se encuentra en la posicion 0 (debemos asegurarnos 
+            //que este no tiene obstaculos en el centro)
+            if (i < 2)
+            {
+                //Al inicio del juego, se eligen los dos primeros tiles 
+                //(esos dos primeros son seguros en el centro)
+                //La posición 0 contendrá el tile de inicio de la priemra parte del mapa
+                //la posición 1 tambien será seguro en el centro
+                SpawnTile(i);
+            }
+
+            else //Despues del 2do tile generamos aleatorios
+            {
+                SpawnTile();
+            }
+           
+        }
+=======
         //Generamos los tiles iniciales
         InitSpawn();
+>>>>>>> clean_code
     }
 
     // Update is called once per frame
@@ -330,7 +357,7 @@ public class LevelManager : MonoBehaviour
             tileDirection.rotation *= Quaternion.Euler(Vector3.up * side * 90);
 
             //Si se mantiene en linea recta sigue la direccion de rotacion local
-            if(side == 0){
+            if (side == 0){
                 tile.transform.rotation = tileDirection.rotation;
             }
 

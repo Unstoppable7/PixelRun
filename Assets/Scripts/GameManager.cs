@@ -16,8 +16,14 @@ public class GameManager : MonoBehaviour, IShopCustomer
     //Referencia al playerMotor para saber cuando empieza a moverse
     public PlayerMotor motor;
 
+    //Referencia al manejador del nivel
+    LevelManager levelManager;
+
     //Referencia a la camara que seguirá al jugador para centrarla cuando hay un giro
     CameraFollow camera;
+
+    //Posicion inicial de la camara
+    Vector3 initPositionCamera;
 
     //Referencia al UIManager
     public UIManager userInterfaceManager;
@@ -59,20 +65,19 @@ public class GameManager : MonoBehaviour, IShopCustomer
         //Asignamos la referencia al script playerMotor del jugador
         motor = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMotor>();
 
+        //Asignamos la referencia al script LevelManager
+        levelManager = GameObject.FindGameObjectWithTag("LevelManager").GetComponent<LevelManager>();
+
         //Asignamos al script de CameraFollow de la camara
         camera = Camera.main.GetComponent<CameraFollow>();
+        //Asignamos la pos inicial de la camara
+        initPositionCamera = camera.transform.position ;
 
         //Cargamos los datos locales del jugador
         LoadPlayerData();
 
         //Actualizamos las monedas disponibles del jugador
         userInterfaceManager.UpdateCoinsAvailable(Coins);
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
     }
 
     // Update is called once per frame
@@ -137,28 +142,66 @@ public class GameManager : MonoBehaviour, IShopCustomer
     }
 
     //Metodo para terminar el juego
-    public void GameOver()
+    public void GameOver(bool save = false)
     {
-        //Totalizamos la puntacion final sumandole el nro de monedas recogidas
-        HighScore += Score + Coins;
+        if (save)
+        {
+            //Totalizamos la puntacion final sumandole el nro de monedas recogidas
+            HighScore += Score + Coins;
 
-        //Aumentamos las monedas del jugador con las modenas conseguidas 
-        //en la partida
-        Coins += CurrentCoins;
+            //Aumentamos las monedas del jugador con las modenas conseguidas 
+            //en la partida
+            Coins += CurrentCoins;
 
-        //Actualizamos las monedas disponibles del jugador
-        //userInterfaceManager.UpdateCoinsAvailable(Coins);
+            //Actualizamos la UI
+            userInterfaceManager.UpdateCoinsAvailable(Coins);
 
-        //TODO CAMBIAR, QUE AL PERDER SE REINICIE LA ESCENA (PlayAgain())
-        //Guardamos localmente los datos del jugador obtenidos en partida
-        SaveSystem.SavePlayer(this);
+            //Guardamos localmente los datos del jugador obtenidos en partida
+            SaveSystem.SavePlayer(this);
+
+        }
+        //Detenemos todas las corrutinas
+        StopAllCoroutines();
+
+        //Actualizamos toda la UI
+        userInterfaceManager.RefreshUIAfterGameOver();
+
+        //Reiniciamos el nivel
+        PlayAgain();
+    }
+
+    void ResetGameVariables()
+    {
+        Score = 0;
+        CurrentCoins = 0;
     }
 
     //Metodo para reiniciar el nivel
-    public void PlayAgain()
+    void PlayAgain()
     {
-        //Invocamos el metodo para recargar la escena con un retaso de 1sec
-        Invoke("LoadScene", 1f);        
+        //Borramos todos los tiles activos
+        levelManager.DeleteAllTiles();
+
+        //Generamos nuevamente tiles.
+        levelManager.InitSpawn();
+
+        //Posicionamos al jugador en el inicio
+        motor.ResetPosition();
+
+        //Levantamos al player
+        motor.Revive(false);
+
+        //Desactivamos las habilidades del jugador
+        motor.OffAllAbilities();
+
+        //Restablecemos variables de juego
+        ResetGameVariables();
+
+        //Actualizo la UI
+        userInterfaceManager.ResfreshTextScore(0, 0);
+
+        //Restablecemos a la posicion inicial la camara
+        ResetPositionCamera();
     }
     
     //Metodo para recargar la escena actual (Lo hacemos para poder llamarlo
@@ -191,7 +234,7 @@ public class GameManager : MonoBehaviour, IShopCustomer
         ResumeGame();
 
         //Llamo al metodo para revivir al personaje
-        motor.Revive();
+        motor.Revive(true);
 
     }
 
@@ -381,5 +424,16 @@ public class GameManager : MonoBehaviour, IShopCustomer
 
     #endregion
 
-    
+    //Metodo para restablecer la posicion inicial de la camara
+    public void ResetPositionCamera()
+    {
+        camera.transform.position = initPositionCamera;
+    }
+
+    public void ResetGame()
+    {
+        PlayAgain();
+
+        ResumeGame();
+    }
 }

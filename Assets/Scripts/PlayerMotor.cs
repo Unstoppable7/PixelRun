@@ -77,10 +77,13 @@ public class PlayerMotor : MonoBehaviour
     //Booleano que me indica si el giroscopio está disponible y activo
     //en el movil
     bool gyroEnabled;
+
     //Giroscopio del movil
     Gyroscope gyro;
+
     //Quaternion para manejar el giroscopio
     Quaternion rot;
+
     #region Variables del double touch
 
     //Nos dice si el jugador está ahogado o no
@@ -144,8 +147,8 @@ public class PlayerMotor : MonoBehaviour
             }
             return;
         }
-
-
+        
+        
         //Revisamos si se realizó un double tab
         CheckDoubleTab();
 
@@ -178,11 +181,11 @@ public class PlayerMotor : MonoBehaviour
                 verticalVelocity = jump;
 
                 //Si delante del jugador hay un obstaculo para realizar el salto largo
-                if (bigJump) {
+                if(bigJump){
                     animatorController.SetTrigger("bigJump");
                 }
 
-                else {
+                else{
                     //Disparamos la animacion de salto
                     animatorController.SetTrigger("Jump");
                 }
@@ -209,16 +212,16 @@ public class PlayerMotor : MonoBehaviour
                             Input.GetAxis("Horizontal") : 
                             (Input.acceleration.x) * sensitivityAccelerometer);
         **/
-
-#if UNITY_EDITOR
-        moveTarget = transform.forward + transform.right * Input.GetAxis("Horizontal");
-#else
+        
+        #if UNITY_EDITOR
+            moveTarget = transform.forward + transform.right * Input.GetAxis("Horizontal");
+	#else
             //Con Giroscopio
             moveTarget = (transform.forward + (transform.right
                                 * ((Input.GetAxis("Horizontal") != 0) ?
                                 Input.GetAxis("Horizontal") :
                                 (-gyro.rotationRateUnbiased.z) * sensitivityGyro) ) );
-#endif
+	#endif
         //El Vector en el eje x será la direccion de lo que se esté presionando (-1, 0, 1) por
         //la velocidad de movimiento
         moveTarget *= speed;
@@ -245,7 +248,7 @@ public class PlayerMotor : MonoBehaviour
         #endregion
 
         //Jugador se agacha una sola vez y solo si está en el suelo
-        if ((Input.GetKeyDown(KeyCode.DownArrow) || SwipeCheck(2)) && !isCrouch && isGrounded) {
+        if( (Input.GetKeyDown(KeyCode.DownArrow) || SwipeCheck(2)) && !isCrouch && isGrounded){
             //swipeDown = false;        
             isCrouch = true;
             StartCoroutine(Crouch());
@@ -253,7 +256,7 @@ public class PlayerMotor : MonoBehaviour
 
         //Si el jugador puede atacar una sola vez y presiona la w o hace 
         //double touch para atacar
-        if (isAttack && (Input.GetKeyDown(KeyCode.W) || doubleTouch)) {
+        if(isAttack && (Input.GetKeyDown(KeyCode.W) || doubleTouch)) {
 
             //Hacemos isAttack false para que esté lista de una vez
             //para la animacion de ataque si se agarra otro powerup de ataque mientras
@@ -311,6 +314,8 @@ public class PlayerMotor : MonoBehaviour
     {
         isRunning = true;
         animatorController.SetFloat("Speed", speed);
+        animatorController.SetTrigger("StartRun");
+
     }
 
     //Me cambia el estado del personaje a detenido, de esta forma pausamos
@@ -325,35 +330,35 @@ public class PlayerMotor : MonoBehaviour
     //detectar las colisiones del jugador
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.gameObject.CompareTag("Obstacle")) {
+        if(hit.gameObject.CompareTag("Obstacle")){
             //Si choca con obstaculos y tiene el escudo
             //vuelve el collider del obstaculo a trigger
             //para que lo atraviese
-            if (isShield) {
+            if(isShield){
                 hit.collider.isTrigger = true;
                 return;
             }
 
             //Si puede destruir, destruye el obstaculo con el que choca
-            else if (isDestroy) {
+            else if(isDestroy){
                 Destroy(hit.gameObject);
             }
 
             //Si no muere
-            else {
+            else{
                 Crash(hit.collider);
             }
         }
 
         //Si se estrella con algo que no se puede destruir
-        else if (hit.gameObject.CompareTag("Indestructible")) {
+        else if(hit.gameObject.CompareTag("Indestructible")) {
             //Y no tiene el escudo ni es inmune entonces muere
-            if (!isShield && !isImmune) {
+            if(!isShield && !isImmune) {
                 Crash();
             }
 
             //Si no traspasa el objeto
-            else {
+            else{
                 hit.collider.isTrigger = true;
             }
         }
@@ -435,7 +440,7 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Metodo para revivir al personaje
-    public void Revive()
+    public void Revive(bool continueGame)
     {
         //Activo el trigger para que el personaje retome la animacion de pie
         animatorController.SetTrigger("Revive");
@@ -443,14 +448,17 @@ public class PlayerMotor : MonoBehaviour
         //Detenemos al personaje
         StopRun();
 
-        //Agrego inmunidad al player en los obstaculos actuales en la escena
-        Inmunity();
+        if (continueGame)
+        {
+            //Agrego inmunidad al player en los obstaculos actuales en la escena
+            Inmunity();
 
         //Despues que hace todo lo de revivir a velocidad normal
         //se regresa a la velocidad con la que venia corriendo
         Time.timeScale = initTime;
         //Posicionamos en el centro al player
         ResetPositionX();
+	}
     }
 
     //Metodo para dar inmunidad al personaje
@@ -694,8 +702,6 @@ public class PlayerMotor : MonoBehaviour
     {
         if (Input.touchCount > 0)
         {
-            //Debug.LogError("Start: " + startTouchPosition);
-
             Touch touch = Input.GetTouch(0);
             //bool band = true;
             //Si hay al menos un touch y este está en fase de inicio recien tocado
@@ -737,10 +743,7 @@ public class PlayerMotor : MonoBehaviour
                     return true;
 
                 }
-            }
-
-            //Debug.LogError("Start: " + startTouchPosition);
-            //Debug.LogError("End: " + endTouchPosition);
+            }           
         }
         return false;
     }
@@ -749,5 +752,37 @@ public class PlayerMotor : MonoBehaviour
     public void ResetPositionX()
     {
         transform.position = (new Vector3(0, transform.position.y, transform.position.z));
+    }
+
+    //Metodo que posiciona al jugador en el punto inicial del juego.
+    public void ResetPosition()
+    {
+        transform.position = (new Vector3(0, 0, 0));
+    }
+
+    public void OffAllAbilities()
+    {
+        isAttack = false;
+        isShield = false;
+        isImmune = false;
+
+        
+        //Se guarda el gameObject shield dentro del jugador
+        GameObject shield = transform.GetChild(1).gameObject;
+
+        //Se muestra el escudo
+        shield.SetActive(false);        
+    }
+
+    //Metodo para reiniciar los triggers de las animaciones StartRun y Revive
+    //sucedia que si tomaba un escudo y luego salia del juego hacia el menu, estos
+    //trigers por alguna razon seguian activos entonces al volver a iniciar una partida
+    //cuando el player moria, inmediatamente se levantaba y empezaba a correr sin presionar 
+    //nada, esto lo soluciona llamandolo en al presionar el boton menu y restart
+    //TODO mejorar de alguna forma
+    public void ResetTriggers()
+    {
+        animatorController.ResetTrigger("StartRun");
+        animatorController.ResetTrigger("Revive");
     }
 }

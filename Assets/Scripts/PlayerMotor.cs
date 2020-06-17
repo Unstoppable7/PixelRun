@@ -610,9 +610,12 @@ public class PlayerMotor : MonoBehaviour
         GameObject shield = transform.GetChild(1).gameObject;
 
         //Se muestra el escudo
-        shield.SetActive(true);
-        yield return new WaitForSeconds(time);
-
+        while(isShield && time > 0){
+            shield.SetActive(true);
+            time -= Time.deltaTime;
+            yield return null;
+        }
+        
         //Despues del tiempo de duracion del escudo se deja de mostrar
         shield.SetActive(false);
 

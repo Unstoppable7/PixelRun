@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class CollectableShield : MonoBehaviour
 {
-    //Tiempo de duracion del escudo
-    public float time;
+    //Multiplicador que aumentará la duración del escudo
+    public static int multiplier = 1;
+
+    //Tiempo de duracion base del escudo
+    private static float baseTime  = 5f;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -13,8 +16,8 @@ public class CollectableShield : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             //Se activa un escudo por cierto tiempo
-            GameManager.sharedInstance.SetPlayerShield(true, time);
-            Destroy(gameObject);            
+            GameManager.sharedInstance.SetPlayerShield(true, baseTime * multiplier);
+            Destroy(gameObject);        
         }
     }
 }

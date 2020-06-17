@@ -44,6 +44,9 @@ public class GameManager : MonoBehaviour, IShopCustomer
     //Propiedad a la puntuacion maxima obtenida
     public float HighScore { get; private set; }
 
+    //Guarda las coroutinas para poder detenerlas
+    Coroutine coroutineShield;
+
 #endregion
 
     public event EventHandler OnScoreAmountChanged;
@@ -369,12 +372,14 @@ public class GameManager : MonoBehaviour, IShopCustomer
     //Hace que el jugador active su escudo
     //se llama desde CollectableShield.cs
     public void SetPlayerShield(bool isShield, float time){
-        //Si ya tiene un escudo activo o es inmune no se sobrepone otro escudo
-        if(motor.GetShield() || motor.GetImmune()){
-            return;
+        //Si tiene el escudo activado
+        if(motor.GetShield()){
+            StopCoroutine(coroutineShield);
         }
+
+        //Se alarga el tiempo de duración del escudo
         motor.SetShield(isShield);
-        StartCoroutine(motor.Shield(time));
+        coroutineShield = StartCoroutine(motor.Shield(time));
     }
 
     //Retorna si el jugador tiene escudo o no

@@ -192,7 +192,8 @@ public class LevelManager : MonoBehaviour
         spawnZ = 0.0f;
         tilesCount = 0;        
         tileDirection.position = initPositionTileDirection.transform.position;
-        tileDirection.rotation = initPositionTileDirection.transform.rotation;        
+        tileDirection.rotation = initPositionTileDirection.transform.rotation;
+        partTilesCount = 0;
 
         //Se crea la primera curva del mapa
         nextCurve = Random.Range(minNextCurve, maxNextCurve);
@@ -204,15 +205,19 @@ public class LevelManager : MonoBehaviour
             //tenga un obstaculo en el centro, por lo que le forzamos a poner 
             //el tile que se encuentra en la posicion 0 (debemos asegurarnos 
             //que este no tiene obstaculos en el centro)
-            if (i < 2)
-            {
-                SpawnTile(0);
+            /**
+                if (i < 2)
+                {
+                    SpawnTile(0);
 
-            }
-            else //Despues del 2do tile generamos aleatorios
-            {
-                SpawnTile();
-            }
+                }
+                else //Despues del 2do tile generamos aleatorios
+                {
+                    SpawnTile();
+                }
+            **/
+
+            SpawnTile();
 
         }
     }
@@ -256,10 +261,13 @@ public class LevelManager : MonoBehaviour
                 side = 0;
             }
 
+            //Debug.LogError("partTilesCount: " + partTilesCount);
+            //Debug.LogError(": " +);
+            //Debug.LogError(": " +);
 
             //Si la direccion va en linea recta
             //instancia los tiles de linea recta
-            if(side == 0){
+            if (side == 0){
                 //El primer tile de la nueva parte del mapa será el prefab en la posición 0 del array
                 //Solo se instancia una vez este prefab durante toda la creción de la nueva parte
                 //Ya que este le va a indicar al usuario que está entrando a la nueva parte del mapa
@@ -272,7 +280,7 @@ public class LevelManager : MonoBehaviour
                 }
 
                 //Los dos tiles despues de la curva y la entrada a la nueva parte serán seguros en el centro
-                else if(tilesCount < 3){
+                else if(partTilesCount < 3){
                     //Se instancia el de la posicion 1 ya que el de la posición 0 es la entrada a la nueva parte
                     //(Solo queremos que se instancie la entrada a esa parte una sola vez)
                     tile = Instantiate(currentPart.straightTiles[1]) as GameObject;

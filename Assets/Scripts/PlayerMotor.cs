@@ -757,7 +757,8 @@ public class PlayerMotor : MonoBehaviour
     //Metodo que posiciona al jugador en el punto inicial del juego.
     public void ResetPosition()
     {
-        transform.position = (new Vector3(0, 0, 0));
+        transform.position = new Vector3(0, 0, 0);
+        transform.rotation = new Quaternion(0, 0, 0, 0);
     }
 
     public void OffAllAbilities()

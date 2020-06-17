@@ -86,7 +86,7 @@ public class ChangeDirection : MonoBehaviour
                 //Destruye los triggers del tile de la curva para asegurarnos de que no gire varias veces
                 //en el mismo tile
                 DestroyColliders();
-
+                
                 //Centramos al jugador antes de girarlo
                 GameManager.sharedInstance.PerfectPlayerCenter(transform.position);
 

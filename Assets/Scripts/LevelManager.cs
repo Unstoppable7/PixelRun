@@ -194,6 +194,9 @@ public class LevelManager : MonoBehaviour
         tileDirection.position = initPositionTileDirection.transform.position;
         tileDirection.rotation = initPositionTileDirection.transform.rotation;
         partTilesCount = 0;
+        //La parte que se creará será la primera al inicio
+        currentPart = mapParts[0];
+        GameManager.sharedInstance.camera.initPosition = 0;
 
         //Se crea la primera curva del mapa
         nextCurve = Random.Range(minNextCurve, maxNextCurve);
@@ -280,7 +283,7 @@ public class LevelManager : MonoBehaviour
                 }
 
                 //Los dos tiles despues de la curva y la entrada a la nueva parte serán seguros en el centro
-                else if(partTilesCount < 3){
+                else if(tilesCount < 3){
                     //Se instancia el de la posicion 1 ya que el de la posición 0 es la entrada a la nueva parte
                     //(Solo queremos que se instancie la entrada a esa parte una sola vez)
                     tile = Instantiate(currentPart.straightTiles[1]) as GameObject;

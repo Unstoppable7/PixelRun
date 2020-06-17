@@ -15,7 +15,7 @@ public class CameraFollow : MonoBehaviour
 
     //Posicion que tendra la camara en su x local para que no se mueva
     //en el centro
-    float initPosition;
+    public float initPosition { get; set; }
 
     //Rotacion a la que se quiere hacer la animacion
     Quaternion targetRotation;
@@ -69,7 +69,7 @@ public class CameraFollow : MonoBehaviour
             //La rotacion de los limites será siempre igual al del jugador para que estén siempre
             //a los lados del mismo. Asi evitamos los colliders en las paredes de cada prefab
             playerLimits.rotation = target.rotation;
-        }        
+        }      
     }
 
     //Asigna la posicion central de la camara para que no se pueda mover en el centro

@@ -453,12 +453,12 @@ public class PlayerMotor : MonoBehaviour
             //Agrego inmunidad al player en los obstaculos actuales en la escena
             Inmunity();
 
-        //Despues que hace todo lo de revivir a velocidad normal
-        //se regresa a la velocidad con la que venia corriendo
-        Time.timeScale = initTime;
-        //Posicionamos en el centro al player
-        ResetPositionX();
-	}
+            //Despues que hace todo lo de revivir a velocidad normal
+            //se regresa a la velocidad con la que venia corriendo
+            Time.timeScale = initTime;
+            //Posicionamos en el centro al player
+            ResetPositionX();
+	    }
     }
 
     //Metodo para dar inmunidad al personaje
@@ -751,14 +751,13 @@ public class PlayerMotor : MonoBehaviour
     //Metodo que posiciona al jugador en el punto central del mapa.
     public void ResetPositionX()
     {
-        transform.position = (new Vector3(0, transform.position.y, transform.position.z));
+        transform.position = (new Vector3(0, transform.position.y, 0));
     }
 
     //Metodo que posiciona al jugador en el punto inicial del juego.
     public void ResetPosition()
     {
-        transform.position = new Vector3(0, 0, 0);
-        transform.rotation = new Quaternion(0, 0, 0, 0);
+        transform.SetPositionAndRotation(Vector3.zero, new Quaternion(0, 0, 0, 0));
     }
 
     public void OffAllAbilities()

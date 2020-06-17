@@ -20,10 +20,10 @@ public class GameManager : MonoBehaviour, IShopCustomer
     LevelManager levelManager;
 
     //Referencia a la camara que seguirá al jugador para centrarla cuando hay un giro
-    CameraFollow camera;
+    public CameraFollow camera;
 
     //Posicion inicial de la camara
-    Vector3 initPositionCamera;
+    GameObject initPositionCamera;
 
     //Referencia al UIManager
     public UIManager userInterfaceManager;
@@ -71,7 +71,9 @@ public class GameManager : MonoBehaviour, IShopCustomer
         //Asignamos al script de CameraFollow de la camara
         camera = Camera.main.GetComponent<CameraFollow>();
         //Asignamos la pos inicial de la camara
-        initPositionCamera = camera.transform.position ;
+        initPositionCamera = new GameObject();
+        initPositionCamera.transform.position = camera.transform.position;
+        initPositionCamera.transform.rotation = camera.transform.rotation;
 
         //Cargamos los datos locales del jugador
         LoadPlayerData();
@@ -427,7 +429,8 @@ public class GameManager : MonoBehaviour, IShopCustomer
     //Metodo para restablecer la posicion inicial de la camara
     public void ResetPositionCamera()
     {
-        camera.transform.position = initPositionCamera;
+        camera.transform.SetPositionAndRotation(initPositionCamera.transform.position, 
+                                                initPositionCamera.transform.rotation);
     }
 
     public void ResetGame()

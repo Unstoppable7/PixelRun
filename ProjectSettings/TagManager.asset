@@ -10,6 +10,7 @@ TagManager:
   - Indestructible
   - ChangeDirection
   - LevelManager
+  - Hole
   layers:
   - Default
   - TransparentFX

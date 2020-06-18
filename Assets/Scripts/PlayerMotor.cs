@@ -617,6 +617,12 @@ public class PlayerMotor : MonoBehaviour
     IEnumerator InmunityShield() {
         //Se guarda el gameObject shield dentro del jugador
         GameObject shield = transform.GetChild(1).gameObject;
+        GameObject[] holes = GameObject.FindGameObjectsWithTag("Hole");
+
+        foreach(GameObject hole in holes){
+            //activa el collider de los huecos en el agua para que no se caiga
+            hole.GetComponent<BoxCollider>().enabled = true;
+        }
 
         //Se guarda el color inicial del escudo
         Color initShieldColor = shield.GetComponent<Renderer>().material.color;

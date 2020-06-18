@@ -4658,13 +4658,15 @@ MonoBehaviour:
     - {fileID: 3806490008457862567, guid: 27b0151200620c14da2a1886d2b5e15c, type: 3}
     - {fileID: 3806490008457862567, guid: 27b0151200620c14da2a1886d2b5e15c, type: 3}
     - {fileID: 3806490008457862567, guid: 27b0151200620c14da2a1886d2b5e15c, type: 3}
+    - {fileID: 7322060342739556451, guid: 1652ffd42757a8b4892c9bd4e1c44259, type: 3}
+    - {fileID: 7322060342739556451, guid: 1652ffd42757a8b4892c9bd4e1c44259, type: 3}
     rightTiles:
     - {fileID: 1452219968736262288, guid: 75f41fac4c87fb946ba6946ec1a69835, type: 3}
     leftTiles:
     - {fileID: 710016223557298976, guid: e941aec10e77c4a4e846906efc06358d, type: 3}
     tilesCount: 0
-    minTilesCount: 240
-    maxTilesCount: 310
+    minTilesCount: 10
+    maxTilesCount: 110
   - straightTiles:
     - {fileID: 4647966175387094839, guid: 06ba29fefd7fc4c4cb3ca52860325edd, type: 3}
     - {fileID: 7403593057039352808, guid: 1e107d0636e31f340aea312760b5682f, type: 3}

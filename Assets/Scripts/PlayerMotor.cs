@@ -344,7 +344,7 @@ public class PlayerMotor : MonoBehaviour
         else if(hit.gameObject.CompareTag("Indestructible")) {
             //Y no tiene el escudo ni es inmune entonces muere
             if(!isShield && !isImmune) {
-                Crash();
+                Crash(hit.collider);
             }
 
             //Si no traspasa el objeto

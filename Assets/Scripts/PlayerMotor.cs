@@ -90,7 +90,6 @@ public class PlayerMotor : MonoBehaviour
     bool isDrowned;
     private const float DOUBLE_TOUCH_TIME = 0.2f;
     private float lastTouchTime = 0;
-    private bool doubleTouch = false;
 
     #endregion
 
@@ -148,10 +147,6 @@ public class PlayerMotor : MonoBehaviour
             return;
         }
         
-        
-        //Revisamos si se realizó un double tab
-        CheckDoubleTab();
-
         //Este será el vector de movimiento final de nuestro personaje
         moveTarget = Vector3.zero;
 
@@ -256,7 +251,7 @@ public class PlayerMotor : MonoBehaviour
 
         //Si el jugador puede atacar una sola vez y presiona la w o hace 
         //double touch para atacar
-        if(isAttack && (Input.GetKeyDown(KeyCode.W) || doubleTouch)) {
+        if(isAttack && (Input.GetKeyDown(KeyCode.W) || CheckDoubleTap()) ) {
 
             //Hacemos isAttack false para que esté lista de una vez
             //para la animacion de ataque si se agarra otro powerup de ataque mientras
@@ -267,13 +262,8 @@ public class PlayerMotor : MonoBehaviour
             //con los que choca el personaje
             isDestroy = true;
 
-            //DoubleTab en falso
-            doubleTouch = false;
-
             //Inicia el ataque del jugador
             StartCoroutine(Attack());
-
-
         }
 
         //Se aumenta la velocidad del juego poco a poco
@@ -678,7 +668,7 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Metodo para revisar cuando se realiza un double touch
-    private void CheckDoubleTab()
+    private bool CheckDoubleTap()
     {
         //Si se realiza al menos un touch
         if (Input.GetMouseButtonDown(0))
@@ -690,12 +680,14 @@ public class PlayerMotor : MonoBehaviour
             //tiempo estimado ha considerarse como double touch
             if (timeSinceLastTouch <= DOUBLE_TOUCH_TIME && Time.time > DOUBLE_TOUCH_TIME + 1)
             {
-                doubleTouch = true;
+                lastTouchTime = 0;
+                return true;
             }
             //Asigno el tiempo en que se realizó el ultimo touch desde que 
             //comenzó la aplicacion
             lastTouchTime = Time.time;
         }
+        return false;
 
     }
 

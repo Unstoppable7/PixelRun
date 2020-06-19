@@ -105,8 +105,15 @@ public class PlayerMotor : MonoBehaviour
 
     #endregion
 
-    //Aumento de la sensibilidad del acelerometro
-    public float sensitivityGyro { get; set; } = 0.7f;
+    //Vector3 con los valores limitados del acelerometro
+    float inputAccelerometer;
+
+    //Velocidad horizontal a aplicar cuando el jugador gire el telefono
+    public float sensitivityAccelerometer { get; set; } = 2f;
+
+    public float move { get; set; } = 0;
+
+    double lastMove;
 
     // Start is called before the first frame update
     void Start()
@@ -124,11 +131,13 @@ public class PlayerMotor : MonoBehaviour
         StartLimits();
     }
 
-
-
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log(gyro.attitude);
+
+        //Debug.Log("Acelerometro: " + Input.acceleration);
+
         //Si el personaje no está corriendo (al inicio del juego) no
         //hacemos nada
         bool isGrounded = IsGrounded();
@@ -140,13 +149,14 @@ public class PlayerMotor : MonoBehaviour
             //Para que caiga cuando se estrelle y no quede en el aire
             //y tambien solo si no está "ahogado" para que no siga bajando siempre
             //si el jugador se ahoga y tarda en dar la opcion de continuar o salir
-            if (!isGrounded && !isDrowned) {
+            if (!isGrounded && !isDrowned)
+            {
                 verticalVelocity -= (gravity * Time.deltaTime);
                 controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
             }
             return;
         }
-        
+
         //Este será el vector de movimiento final de nuestro personaje
         moveTarget = Vector3.zero;
 
@@ -176,11 +186,13 @@ public class PlayerMotor : MonoBehaviour
                 verticalVelocity = jump;
 
                 //Si delante del jugador hay un obstaculo para realizar el salto largo
-                if(bigJump){
+                if (bigJump)
+                {
                     animatorController.SetTrigger("bigJump");
                 }
 
-                else{
+                else
+                {
                     //Disparamos la animacion de salto
                     animatorController.SetTrigger("Jump");
                 }
@@ -198,25 +210,42 @@ public class PlayerMotor : MonoBehaviour
         //lados por el transform right (1,0,0) por en caso de presionar los
         //botones configurados en el editor por el axis 'horizontal' o por
         //el eje x del acelerometro del movil este multiplicado por una variable
-        //que aumenta la sensibilidad
+        //que aumenta la sensibilidad, al ser transform.right estamos tomando en
+        //cuenta la x local del personaje, cuando el gira cambian son sus variables
+        //globales        
 
-        //Con acelerometro
         /**
-            moveTarget = transform.forward + transform.right 
-                            * ((Input.GetAxis("Horizontal") != 0) ? 
-                            Input.GetAxis("Horizontal") : 
-                            (Input.acceleration.x) * sensitivityAccelerometer);
-        **/
-        
-        #if UNITY_EDITOR
-            moveTarget = transform.forward + transform.right * Input.GetAxis("Horizontal");
-	#else
             //Con Giroscopio
             moveTarget = (transform.forward + (transform.right
                                 * ((Input.GetAxis("Horizontal") != 0) ?
                                 Input.GetAxis("Horizontal") :
                                 (-gyro.rotationRateUnbiased.z) * sensitivityGyro) ) );
-	#endif
+        
+        **/
+
+        AcelerometerMove();
+
+        //Con Acelerometro
+        moveTarget = (transform.forward + (transform.right
+                            * ((Input.GetAxis("Horizontal") != 0) ?
+                            Input.GetAxis("Horizontal") :
+                            (move) * sensitivityAccelerometer)));
+
+        /**
+         //Con Acelerometro
+         moveTarget = (transform.forward + (transform.right
+                             * ((Input.GetAxis("Horizontal") != 0) ?
+                             Input.GetAxis("Horizontal") :
+                             (Input.acceleration.x) * sensitivityAccelerometer)));
+         **/
+
+
+        //moveTarget = transform.forward;
+
+
+        //transform.position = Vector3.MoveTowards(transform.position, (transform.forward + transform.right * Input.acceleration.x)*20, Time.deltaTime*5);
+        //Vector3 vector = transform.right * Input.acceleration.x * 2;
+        //Debug.Log(Vector3.MoveTowards(transform.position, vector, Time.deltaTime));
         //El Vector en el eje x será la direccion de lo que se esté presionando (-1, 0, 1) por
         //la velocidad de movimiento
         moveTarget *= speed;
@@ -224,8 +253,10 @@ public class PlayerMotor : MonoBehaviour
         //El vector en el eje y será en este momento la vel vertical
         moveTarget.y = verticalVelocity;
 
+        //transform.position = Vector3.MoveTowards(transform.position, moveTarget, Time.deltaTime);
         //Aplicamos el movimiento a nuestro character controller
         controller.Move(moveTarget * Time.deltaTime);
+        //controller.SimpleMove(moveTarget);
 
         #region Rotamos un poco al personaje cuando cambie de carril
 
@@ -243,7 +274,8 @@ public class PlayerMotor : MonoBehaviour
         #endregion
 
         //Jugador se agacha una sola vez y solo si está en el suelo
-        if( (Input.GetKeyDown(KeyCode.DownArrow) || SwipeCheck(2)) && !isCrouch && isGrounded){
+        if ((Input.GetKeyDown(KeyCode.DownArrow) || SwipeCheck(2)) && !isCrouch && isGrounded)
+        {
             //swipeDown = false;        
             isCrouch = true;
             StartCoroutine(Crouch());
@@ -251,7 +283,8 @@ public class PlayerMotor : MonoBehaviour
 
         //Si el jugador puede atacar una sola vez y presiona la w o hace 
         //double touch para atacar
-        if(isAttack && (Input.GetKeyDown(KeyCode.W) || CheckDoubleTap()) ) {
+        if (isAttack && (Input.GetKeyDown(KeyCode.W) || CheckDoubleTap()))
+        {
 
             //Hacemos isAttack false para que esté lista de una vez
             //para la animacion de ataque si se agarra otro powerup de ataque mientras
@@ -270,7 +303,8 @@ public class PlayerMotor : MonoBehaviour
         Time.timeScale = Mathf.Lerp(Time.timeScale, 1.5f, Time.deltaTime * accelerationTime);
 
         //Si el jugador se ahoga
-        if (transform.position.y < -5 && !isDrowned) {
+        if (transform.position.y < -5 && !isDrowned)
+        {
             isDrowned = true;
             Crash();
         }
@@ -320,35 +354,42 @@ public class PlayerMotor : MonoBehaviour
     //detectar las colisiones del jugador
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if(hit.gameObject.CompareTag("Obstacle")){
+        if (hit.gameObject.CompareTag("Obstacle"))
+        {
             //Si choca con obstaculos y tiene el escudo
             //vuelve el collider del obstaculo a trigger
             //para que lo atraviese
-            if(isShield){
+            if (isShield)
+            {
                 hit.collider.isTrigger = true;
                 return;
             }
 
             //Si puede destruir, destruye el obstaculo con el que choca
-            else if(isDestroy){
+            else if (isDestroy)
+            {
                 Destroy(hit.gameObject);
             }
 
             //Si no muere
-            else{
+            else
+            {
                 Crash(hit.collider);
             }
         }
 
         //Si se estrella con algo que no se puede destruir
-        else if(hit.gameObject.CompareTag("Indestructible")) {
+        else if (hit.gameObject.CompareTag("Indestructible"))
+        {
             //Y no tiene el escudo ni es inmune entonces muere
-            if(!isShield && !isImmune) {
+            if (!isShield && !isImmune)
+            {
                 Crash(hit.collider);
             }
 
             //Si no traspasa el objeto
-            else{
+            else
+            {
                 hit.collider.isTrigger = true;
             }
         }
@@ -393,7 +434,8 @@ public class PlayerMotor : MonoBehaviour
 
     //Metodo que comprueba si adelante hay un obstaculo con el que
     //se pueda realizar la animacion de salto grande
-    private bool isBigJump() {
+    private bool isBigJump()
+    {
         Ray forwardRay = new Ray(new Vector3(controller.bounds.center.x,
                                             controller.bounds.center.y,
                                             (controller.bounds.center.z + controller.bounds.extents.z)), transform.forward);
@@ -402,7 +444,8 @@ public class PlayerMotor : MonoBehaviour
 
         Debug.DrawRay(forwardRay.origin, forwardRay.direction * 3.5f, Color.red);
 
-        if (Physics.Raycast(forwardRay, out hit, 3.5f, LayerMask.GetMask("BigJump"))) {
+        if (Physics.Raycast(forwardRay, out hit, 3.5f, LayerMask.GetMask("BigJump")))
+        {
             return true;
         }
 
@@ -411,7 +454,8 @@ public class PlayerMotor : MonoBehaviour
 
     //Metodo que realiza la animacion de deslizarse en el suelo y
     // bajar el collider para simular que está agachado
-    private IEnumerator Crouch() {
+    private IEnumerator Crouch()
+    {
         animatorController.SetTrigger("Slide");
 
         controller.height /= 2;
@@ -448,7 +492,7 @@ public class PlayerMotor : MonoBehaviour
             Time.timeScale = initTime;
             //Posicionamos en el centro al player
             ResetPositionX();
-	    }
+        }
     }
 
     //Metodo para dar inmunidad al personaje
@@ -464,7 +508,8 @@ public class PlayerMotor : MonoBehaviour
 
             //Vuelvo trigger los colliders de los obstaculos
             //Desactiva los que tienen varios colliders
-            foreach (Collider collider in colliders) {
+            foreach (Collider collider in colliders)
+            {
                 collider.isTrigger = true;
             }
         }
@@ -477,12 +522,14 @@ public class PlayerMotor : MonoBehaviour
         {
             //Si el object indestructible pertenece a el cambio de direccion
             //no destruye sus colliders
-            if (!indestructible.transform.parent.CompareTag("ChangeDirection")) {
+            if (!indestructible.transform.parent.CompareTag("ChangeDirection"))
+            {
                 Collider[] colliders = indestructible.GetComponents<Collider>();
 
                 //Vuelvo trigger los colliders de los indestructibles
                 //Desactiva los que tienen varios colliders
-                foreach (Collider collider in colliders) {
+                foreach (Collider collider in colliders)
+                {
                     collider.isTrigger = true;
                 }
             }
@@ -496,13 +543,15 @@ public class PlayerMotor : MonoBehaviour
 
     //Cambia la rotacion del jugador a la nueva direccion
     //se llama desde ChangeDirection.cs
-    public void ChangeDirection(int direction, float degrees) {
+    public void ChangeDirection(int direction, float degrees)
+    {
         transform.rotation *= Quaternion.Euler(0, degrees * direction, 0);
     }
 
     //Centra al jugador en la posicion correcta antes de seguir avanzando
     //cuando hay un giro. Se llama desde ChangeDirection.cs
-    public void PerfectCenter(Vector3 center) {
+    public void PerfectCenter(Vector3 center)
+    {
         //Primero desactivamos el controller para poder centrarlo con transform
         controller.enabled = false;
         //Se centra el jugador justo en la posicion del tile de la curva
@@ -512,7 +561,8 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Inicializa la posicion de los colliders de los limites en el mapa
-    void StartLimits() {
+    void StartLimits()
+    {
         GameObject playerLimits = GameObject.Find("PlayerLimits");
 
         BoxCollider[] limitsCollider = playerLimits.GetComponents<BoxCollider>();
@@ -527,42 +577,50 @@ public class PlayerMotor : MonoBehaviour
     #region Metodos Geters y Seters del jugador
 
     //Retorna si el jugador está corriendo o no
-    public bool GetIsRunning() {
+    public bool GetIsRunning()
+    {
         return isRunning;
     }
 
     //Retorna si el jugador es inmune o no
-    public bool GetImmune() {
+    public bool GetImmune()
+    {
         return isImmune;
     }
 
     //Retorna si el jugador tiene escudo o no
-    public bool GetShield() {
+    public bool GetShield()
+    {
         return isShield;
     }
 
     //Retorna si el jugador está destruyendo o no
-    public bool GetDestroy() {
+    public bool GetDestroy()
+    {
         return isDestroy;
     }
 
     //Asigna el valor a isImmune
-    public void SetImmune(bool isImmune) {
+    public void SetImmune(bool isImmune)
+    {
         this.isImmune = isImmune;
     }
 
     //Asigna el valor a isAttack
-    public void SetAttack(bool isAttack) {
+    public void SetAttack(bool isAttack)
+    {
         this.isAttack = isAttack;
     }
 
     //Asigna el valor a isShield
-    public void SetShield(bool isShield) {
+    public void SetShield(bool isShield)
+    {
         this.isShield = isShield;
     }
 
     //Regresa si está ahogado o no
-    public bool GetDrowned() {
+    public bool GetDrowned()
+    {
         return isDrowned;
     }
 
@@ -572,7 +630,8 @@ public class PlayerMotor : MonoBehaviour
     #region Animaciones de immunity, attack y shield
 
     //Hace la animacion del ataque
-    IEnumerator Attack() {
+    IEnumerator Attack()
+    {
         //Realizamos la animacion de attack
         animatorController.SetTrigger("Attack");
 
@@ -595,17 +654,19 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Hace la animacion del escudo
-    public IEnumerator Shield(float time) {
+    public IEnumerator Shield(float time)
+    {
         //Se guarda el gameObject shield dentro del jugador
         GameObject shield = transform.GetChild(1).gameObject;
 
         //Se muestra el escudo
-        while(isShield && time > 0){
+        while (isShield && time > 0)
+        {
             shield.SetActive(true);
             time -= Time.deltaTime;
             yield return null;
         }
-        
+
         //Despues del tiempo de duracion del escudo se deja de mostrar
         shield.SetActive(false);
 
@@ -614,12 +675,14 @@ public class PlayerMotor : MonoBehaviour
     }
 
     //Hace la animacion de la inmunidad
-    IEnumerator InmunityShield() {
+    IEnumerator InmunityShield()
+    {
         //Se guarda el gameObject shield dentro del jugador
         GameObject shield = transform.GetChild(1).gameObject;
         GameObject[] holes = GameObject.FindGameObjectsWithTag("Hole");
 
-        foreach(GameObject hole in holes){
+        foreach (GameObject hole in holes)
+        {
             //activa el collider de los huecos en el agua para que no se caiga
             hole.GetComponent<BoxCollider>().enabled = true;
         }
@@ -631,7 +694,8 @@ public class PlayerMotor : MonoBehaviour
         Color inmmuneShieldColor = new Color32(246, 255, 146, 89);
 
         //Mientras que sea inmune muestro el escudo de color amarillo
-        while (isImmune) {
+        while (isImmune)
+        {
             shield.GetComponent<Renderer>().material.color = inmmuneShieldColor;
             shield.SetActive(true);
             yield return null;
@@ -647,7 +711,8 @@ public class PlayerMotor : MonoBehaviour
 
     //Saca al jugador del agua. Se llama desde GameManager antes de empezar la coroutina
     //del contador para volver a jugar
-    public void OutWater() {
+    public void OutWater()
+    {
         isDrowned = false;
         controller.enabled = false;
         transform.position = new Vector3(transform.position.x, 5f, transform.position.z);
@@ -744,7 +809,7 @@ public class PlayerMotor : MonoBehaviour
                     return true;
 
                 }
-            }           
+            }
         }
         return false;
     }
@@ -767,12 +832,12 @@ public class PlayerMotor : MonoBehaviour
         isShield = false;
         isImmune = false;
 
-        
+
         //Se guarda el gameObject shield dentro del jugador
         GameObject shield = transform.GetChild(1).gameObject;
 
         //Se muestra el escudo
-        shield.SetActive(false);        
+        shield.SetActive(false);
     }
 
     //Metodo para reiniciar los triggers de las animaciones StartRun y Revive
@@ -785,5 +850,153 @@ public class PlayerMotor : MonoBehaviour
     {
         animatorController.ResetTrigger("StartRun");
         animatorController.ResetTrigger("Revive");
+    }
+
+    /**
+    //Metodo que limita los valores del acelerometro
+    public float AcelerometerMove()
+    {
+        //TRY que los valoren del acelerometro sean directamente la posicion
+        //del player y manejar los limites etc;
+
+        //Limitamos los valores del acelerometro
+        inputAccelerometer = Input.acceleration.x;
+
+        float inputLimit = 0.4f;
+        float centerRange = 0.1f;
+        float speedToCenter = 2f;
+        float transformCenterRange = 0.1f;
+
+        if( (inputAccelerometer>= -centerRange && inputAccelerometer <= centerRange) && (transform.position.x < -transformCenterRange || transform.position.x > transformCenterRange) )
+        {
+            Debug.Log("1");
+
+            if (lastMove < -centerRange)
+            {
+                Debug.Log("moveRight");
+
+                //moveTarget = (transform.forward + (transform.right
+                //            * 0.01f));
+                lastMove = inputAccelerometer;
+
+                return speedToCenter;
+
+            }else if(lastMove > centerRange)
+            {
+                Debug.Log("moveLeft");
+
+                //moveTarget = (transform.forward + (transform.right
+                //            * -0.01f));
+                lastMove = inputAccelerometer;
+
+                return -speedToCenter;
+            }
+
+        }else if (inputAccelerometer < -inputLimit)
+        {
+            Debug.Log("2");
+
+            //inputAccelerometer = -0.3f;
+            //move left
+            //controller.Move(new Vector3(-SpeedX, moveTarget.y, moveTarget.z) * Time.deltaTime);
+            //moveTarget.x = transform.right * new Vector3(-SpeedX, 0, 0);
+            lastMove = inputAccelerometer;
+
+            return -inputLimit;
+
+        }else if (inputAccelerometer > inputLimit)
+        {
+
+            Debug.Log("3");
+
+            //inputAccelerometer = 0.3f;
+            //move right
+            //controller.Move(new Vector3(SpeedX, moveTarget.y, moveTarget.z) * Time.deltaTime);
+            //moveTarget.x = SpeedX;
+            lastMove = inputAccelerometer;
+
+            return inputLimit;
+        }
+        
+        //if(lastMove - inputAccelerometer < 0.00001 || lastMove - inputAccelerometer > -0.00001)
+        //{
+        //    lastMove = inputAccelerometer;
+        //    return 0;
+
+        //}
+        
+        Debug.Log("NADA");
+
+        lastMove = inputAccelerometer;
+        return inputAccelerometer;
+    }
+    **/
+    /**
+    public void AcelerometerMove()
+    {
+
+        double input = Input.acceleration.x;
+        double highLimit = 0.4, lowLimit = 0.03f;
+
+        if(input < -highLimit)
+        {
+            input = -highLimit;
+        }
+        if (input > highLimit)
+        {
+            input = highLimit;
+        }
+        if(input < lowLimit && input > -lowLimit)
+        {
+            input = 0;
+        }
+        if (lastMove != input)
+        {
+            if ((lastMove - input) > lowLimit || (lastMove - input) < -lowLimit)
+            {
+                move = (float)Math.Round(input - lastMove, 2);
+            }
+            else
+            {
+                move = 0;
+            }
+        }         
+        lastMove = input;
+
+        //Debug.Log(gyro.attitude);        
+        Debug.Log(move);
+
+        //return (int) -move*10 ;
+        //return (float) -Math.Round(move, 3)*3;
+        
+    }
+    **/
+
+    public void AcelerometerMove()
+    {
+        double input = Input.acceleration.x;
+
+        double highLimit = 0.4f, lowLimit = 0.05f;
+
+        if (input < -highLimit)
+        {
+            input = -highLimit;
+        }
+        if (input > highLimit)
+        {
+            input = highLimit;
+        }
+        if (input < lowLimit && input > -lowLimit)
+        {
+            input = 0;
+        }
+        if (lastMove != input)
+        {
+            move = (float)Math.Round(input, 2);
+        }
+        else
+        {
+            move = 0;
+        }
     }
 }

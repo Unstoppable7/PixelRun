@@ -29,20 +29,92 @@ public class UIManager : MonoBehaviour
 
     #region inHome
 
-    [SerializeField]
-    GameObject homePanel;
-
+    //Buttons
+    public GameObject storeButton;
+    public GameObject playButton;
+    public GameObject menuButton;
+    public GameObject backButton;
+    public GameObject noNameButton;
+    public GameObject homeButton;
     //Texto de la cant de monedas
     public TextMeshProUGUI totalCoins;
     //Texto de la cant de gemas
     public TextMeshProUGUI totalGems;
-    //Panel de botones
+    //Panels
+    public GameObject homePanel;
+    public GameObject settingsPanel;
+    public GameObject statsPanel;
+    public GameObject storePanel;
     public GameObject buttonsPanel;
+    //Menus
+    public GameObject mainMenu;
 
     #endregion
 
     //Vamos a construir el texto en tiempo real para eso usamos esta funcion de la libreria mencionada arriba
-    StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder();    
+
+    public void EnterPanel()
+    {
+        homeButton.SetActive(false);
+        backButton.SetActive(true);
+        storeButton.SetActive(false);
+        playButton.SetActive(true);
+        menuButton.SetActive(false);
+
+    }
+
+    public void EnterMenu()
+    {
+        menuButton.SetActive(false);
+        homeButton.SetActive(true);
+        storeButton.SetActive(false);
+        playButton.SetActive(true);
+        backButton.SetActive(false);
+
+    }
+
+    public void EnterHome()
+    {
+        homeButton.SetActive(false);
+        menuButton.SetActive(true);
+        storeButton.SetActive(true);
+        playButton.SetActive(false);
+        backButton.SetActive(false);
+    }
+
+    public void PlayGame()
+    {
+        settingsPanel.SetActive(false);
+        storePanel.SetActive(false);
+        statsPanel.SetActive(false);
+        homePanel.SetActive(false);
+        mainMenu.SetActive(false);
+        buttonsPanel.SetActive(false);
+        playingUI.SetActive(true);
+        pauseButton.SetActive(true);
+    }
+    public void BackButton()
+    {
+        if (storePanel)
+        {
+            storePanel.SetActive(false);
+            //Si el objeto main menu está inactivo
+            if (!mainMenu.activeSelf)
+            {
+                //Regresamos al home
+                EnterHome();
+                //Salimos de la funcion
+                return;
+            }
+        }
+
+        if (statsPanel) statsPanel.SetActive(false);
+
+        if (settingsPanel) settingsPanel.SetActive(false);
+
+        EnterMenu();
+    }
 
     //Metodo que actualiza la puntuacion en la UI    
     public void ResfreshTextScore(int currentCoins, float score)

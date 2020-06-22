@@ -6,6 +6,7 @@ public class PlayerData
     #region Variables a persistir
 
     public int Coins { get; private set; }
+    public int Character;
 
     /**
     int gems;
@@ -24,5 +25,6 @@ public class PlayerData
     public PlayerData(GameManager managerData)
     {
         Coins = managerData.Coins;
+        Character = managerData.PlayerCharacter;
     }
 }

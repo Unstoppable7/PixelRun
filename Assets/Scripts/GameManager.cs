@@ -47,6 +47,13 @@ public class GameManager : MonoBehaviour, IShopCustomer
     //Guarda las coroutinas para poder detenerlas
     Coroutine coroutineShield;
 
+    //Personaje actual del jugador
+    [HideInInspector]
+    public int PlayerCharacter;
+
+    //Lista de personajes disponibles
+    public CharacterData[] Characters;
+
 #endregion
 
     public event EventHandler OnScoreAmountChanged;
@@ -299,6 +306,7 @@ public class GameManager : MonoBehaviour, IShopCustomer
         {
             //Asignamos los datos extraidos a las variables actuales
             Coins = data.Coins;
+            PlayerCharacter = data.Character;
         }
         else
         {

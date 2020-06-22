@@ -115,12 +115,24 @@ public class PlayerMotor : MonoBehaviour
 
     double lastMove;
 
+    //Los datos del personaje que usará el jugador
+    CharacterData character;
+
     // Start is called before the first frame update
     void Start()
     {
+        character = GameManager.sharedInstance.Characters[GameManager.sharedInstance.PlayerCharacter];
+
         controller = GetComponent<CharacterController>();
         animatorController = GetComponent<Animator>();
-        rotation = transform.GetChild(0);
+
+        GameObject characterGameObject = Instantiate(character.model);
+        characterGameObject.name = "Character";
+        characterGameObject.transform.SetParent(transform);
+
+        animatorController.avatar = character.avatar;
+
+        rotation = transform.Find("Character");
         isRunning = false;
 
         //Referenciamos la variable del giroscopio 
@@ -657,7 +669,7 @@ public class PlayerMotor : MonoBehaviour
     public IEnumerator Shield(float time)
     {
         //Se guarda el gameObject shield dentro del jugador
-        GameObject shield = transform.GetChild(1).gameObject;
+        GameObject shield = transform.Find("Shield").gameObject;
 
         //Se muestra el escudo
         while (isShield && time > 0)
@@ -678,7 +690,7 @@ public class PlayerMotor : MonoBehaviour
     IEnumerator InmunityShield()
     {
         //Se guarda el gameObject shield dentro del jugador
-        GameObject shield = transform.GetChild(1).gameObject;
+        GameObject shield = transform.Find("Shield").gameObject;
         GameObject[] holes = GameObject.FindGameObjectsWithTag("Hole");
 
         foreach (GameObject hole in holes)
@@ -834,7 +846,7 @@ public class PlayerMotor : MonoBehaviour
 
 
         //Se guarda el gameObject shield dentro del jugador
-        GameObject shield = transform.GetChild(1).gameObject;
+        GameObject shield = transform.Find("Shield").gameObject;
 
         //Se muestra el escudo
         shield.SetActive(false);

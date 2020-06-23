@@ -3780,7 +3780,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a6984d38400e0c42af3f3082b3efb3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
+  speed: 15
 --- !u!143 &1102007549
 CharacterController:
   m_ObjectHideFlags: 0
@@ -4586,64 +4586,57 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapParts:
-  - straightTiles:
-    - {fileID: 4647966175387094839, guid: 06ba29fefd7fc4c4cb3ca52860325edd, type: 3}
-    - {fileID: 7661951759418239991, guid: 6476638f16d790e4482c36c111d568a2, type: 3}
-    - {fileID: 3693848415660717956, guid: 29b92d4d89d60224ba6879ccb6d202a7, type: 3}
-    - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
-    - {fileID: 3693848415660717956, guid: 29b92d4d89d60224ba6879ccb6d202a7, type: 3}
-    - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
-    - {fileID: 3693848415660717956, guid: 29b92d4d89d60224ba6879ccb6d202a7, type: 3}
-    - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
-    - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
-    - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
-    - {fileID: 3693848415660717956, guid: 29b92d4d89d60224ba6879ccb6d202a7, type: 3}
-    - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
-    - {fileID: 3693848415660717956, guid: 29b92d4d89d60224ba6879ccb6d202a7, type: 3}
-    - {fileID: 6019324090525504116, guid: ad9a8be037f766245a606bbc20c1fea9, type: 3}
+  - initTile: {fileID: 4647966175387094839, guid: 06ba29fefd7fc4c4cb3ca52860325edd,
+      type: 3}
+    obstacleTiles:
+    - {fileID: 3663542151796714528, guid: bfb114f68b3dcb746870587c82489b7b, type: 3}
     - {fileID: 4503776755741816621, guid: 04eb9395518ad2145b21d925759c643e, type: 3}
     - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
-    - {fileID: 5400577744180114185, guid: c84ab13ab121a00468c65accd6ad0838, type: 3}
-    - {fileID: 3663542151796714528, guid: bfb114f68b3dcb746870587c82489b7b, type: 3}
-    - {fileID: 3596907674210241752, guid: 83a4ea543324c6946bdf0b8c6c692ecd, type: 3}
-    - {fileID: 4602660513870139130, guid: c7540ee473e87b24fbe132c8e59c9f5e, type: 3}
     - {fileID: 3693848415660717956, guid: 29b92d4d89d60224ba6879ccb6d202a7, type: 3}
+    - {fileID: 7322060342739556451, guid: 1652ffd42757a8b4892c9bd4e1c44259, type: 3}
+    - {fileID: 6019324090525504116, guid: ad9a8be037f766245a606bbc20c1fea9, type: 3}
     - {fileID: 794605541482655578, guid: 33b0c3a0e296f6f458fd45948205d5e8, type: 3}
-    - {fileID: 3806490008457862567, guid: 27b0151200620c14da2a1886d2b5e15c, type: 3}
-    - {fileID: 3806490008457862567, guid: 27b0151200620c14da2a1886d2b5e15c, type: 3}
-    - {fileID: 3806490008457862567, guid: 27b0151200620c14da2a1886d2b5e15c, type: 3}
-    - {fileID: 7322060342739556451, guid: 1652ffd42757a8b4892c9bd4e1c44259, type: 3}
-    - {fileID: 7322060342739556451, guid: 1652ffd42757a8b4892c9bd4e1c44259, type: 3}
+    - {fileID: 926381930882892531, guid: 08c1c008d810000001d1c008d8100000, type: 3}
+    - {fileID: 3596907674210241752, guid: 83a4ea543324c6946bdf0b8c6c692ecd, type: 3}
+    - {fileID: 5400577744180114185, guid: c84ab13ab121a00468c65accd6ad0838, type: 3}
+    - {fileID: 4602660513870139130, guid: c7540ee473e87b24fbe132c8e59c9f5e, type: 3}
+    safeTiles:
+    - {fileID: 7661951759418239991, guid: 6476638f16d790e4482c36c111d568a2, type: 3}
     rightTiles:
     - {fileID: 1452219968736262288, guid: 75f41fac4c87fb946ba6946ec1a69835, type: 3}
     leftTiles:
     - {fileID: 710016223557298976, guid: e941aec10e77c4a4e846906efc06358d, type: 3}
     tilesCount: 0
-    minTilesCount: 10
-    maxTilesCount: 110
-  - straightTiles:
-    - {fileID: 4647966175387094839, guid: 06ba29fefd7fc4c4cb3ca52860325edd, type: 3}
-    - {fileID: 7403593057039352808, guid: 1e107d0636e31f340aea312760b5682f, type: 3}
+    minTilesCount: 30
+    maxTilesCount: 50
+  - initTile: {fileID: 6113970321643869045, guid: 4e833ba4ce45f864fb6773ad1fb933af,
+      type: 3}
+    obstacleTiles:
     - {fileID: 1437622686764940255, guid: 2ca0003e782465b4bb17cfc68934458e, type: 3}
+    safeTiles:
+    - {fileID: 7403593057039352808, guid: 1e107d0636e31f340aea312760b5682f, type: 3}
     rightTiles:
     - {fileID: 5153991468330171319, guid: d834b92b702925f4dba9da75d7e5da73, type: 3}
     leftTiles:
     - {fileID: 710016223557298976, guid: e941aec10e77c4a4e846906efc06358d, type: 3}
     tilesCount: 0
-    minTilesCount: 10
-    maxTilesCount: 110
-  - straightTiles:
-    - {fileID: 6113970321643869045, guid: 4e833ba4ce45f864fb6773ad1fb933af, type: 3}
-    - {fileID: 7980352263007624300, guid: bf635edfaf3801044b583ed35f1955b0, type: 3}
+    minTilesCount: 30
+    maxTilesCount: 50
+  - initTile: {fileID: 4647966175387094839, guid: 06ba29fefd7fc4c4cb3ca52860325edd,
+      type: 3}
+    obstacleTiles:
     - {fileID: 9008651820458384900, guid: 1cd53e5b3b3d42548af919c4efa9ea63, type: 3}
     - {fileID: 3833851919269604845, guid: afdfeee0e22f37e4494624ae4c90d1a6, type: 3}
+    safeTiles:
+    - {fileID: 7980352263007624300, guid: bf635edfaf3801044b583ed35f1955b0, type: 3}
     rightTiles:
     - {fileID: 5153991468330171319, guid: d834b92b702925f4dba9da75d7e5da73, type: 3}
     leftTiles:
     - {fileID: 710016223557298976, guid: e941aec10e77c4a4e846906efc06358d, type: 3}
     tilesCount: 0
-    minTilesCount: 10
-    maxTilesCount: 110
+    minTilesCount: 30
+    maxTilesCount: 50
+  currentDifficulty: 0
 --- !u!4 &1401773347
 Transform:
   m_ObjectHideFlags: 0

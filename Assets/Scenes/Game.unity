@@ -3780,7 +3780,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a6984d38400e0c42af3f3082b3efb3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 15
+  speed: 10
 --- !u!143 &1102007549
 CharacterController:
   m_ObjectHideFlags: 0
@@ -4589,14 +4589,14 @@ MonoBehaviour:
   - initTile: {fileID: 4647966175387094839, guid: 06ba29fefd7fc4c4cb3ca52860325edd,
       type: 3}
     obstacleTiles:
+    - {fileID: 7322060342739556451, guid: 1652ffd42757a8b4892c9bd4e1c44259, type: 3}
+    - {fileID: 6019324090525504116, guid: ad9a8be037f766245a606bbc20c1fea9, type: 3}
+    - {fileID: 794605541482655578, guid: 33b0c3a0e296f6f458fd45948205d5e8, type: 3}
     - {fileID: 3663542151796714528, guid: bfb114f68b3dcb746870587c82489b7b, type: 3}
     - {fileID: 4503776755741816621, guid: 04eb9395518ad2145b21d925759c643e, type: 3}
     - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
     - {fileID: 3693848415660717956, guid: 29b92d4d89d60224ba6879ccb6d202a7, type: 3}
-    - {fileID: 7322060342739556451, guid: 1652ffd42757a8b4892c9bd4e1c44259, type: 3}
-    - {fileID: 6019324090525504116, guid: ad9a8be037f766245a606bbc20c1fea9, type: 3}
-    - {fileID: 794605541482655578, guid: 33b0c3a0e296f6f458fd45948205d5e8, type: 3}
-    - {fileID: 926381930882892531, guid: 08c1c008d810000001d1c008d8100000, type: 3}
+    - {fileID: 926381930882892531, guid: 163737564737f207275666162637f267, type: 3}
     - {fileID: 3596907674210241752, guid: 83a4ea543324c6946bdf0b8c6c692ecd, type: 3}
     - {fileID: 5400577744180114185, guid: c84ab13ab121a00468c65accd6ad0838, type: 3}
     - {fileID: 4602660513870139130, guid: c7540ee473e87b24fbe132c8e59c9f5e, type: 3}

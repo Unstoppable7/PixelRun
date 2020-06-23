@@ -91,7 +91,7 @@ public class LevelManager : MonoBehaviour
     int minNextCurve = 10;
 
     //Maximo valor que tendrá la siguiente curva
-    int maxNextCurve = 12;
+    int maxNextCurve = 11;
 
     //Cantidad de tiles desde la ultima curva
     int tilesCount = 0;
@@ -118,11 +118,12 @@ public class LevelManager : MonoBehaviour
     //Cantidad de tiles que se han creado por cada parte del mapa
     int partTilesCount = 0;
 
-    int difficulty = 1;
     #endregion
 
+    //Variable que maneja la dificultad actual del juego
     public Difficulty currentDifficulty = Difficulty.easy;
 
+    //Lista con los numeros de la posicion donde van a ir ubicados los obstaculos
     List<int> indexObstacle;
 
     void Awake(){
@@ -220,8 +221,11 @@ public class LevelManager : MonoBehaviour
         //Se crea la primera curva del mapa
         nextCurve = Random.Range(minNextCurve, maxNextCurve);
 
+        //Damos memoria a la lista
         indexObstacle = new List<int>();
 
+        //Generamos las posiciones aleatorias donde iran ubicados los tiles
+        //de los obstaculos
         GenerateIndexOfObstacles(nextCurve);
 
         //Cargamos los tiles iniciales
@@ -245,7 +249,7 @@ public class LevelManager : MonoBehaviour
 
             //Si la siguiente curva y la cantidad de tiles de la parte actual son iguales
             //(si la proxima curva será el inicio de la proxima parte)
-            if(nextCurve - currentPart.tilesCount == 0){
+            if(currentPart.tilesCount < 1){
                 //atrasamos la curva 1 tile mas para que se pueda poner el prefab
                 //de inicio de la parte siguiente del mapa
                 nextCurve++;
@@ -258,18 +262,16 @@ public class LevelManager : MonoBehaviour
                 //Se asigna a cero la cantidad de tiles despues de la curva ya que se crea una nueva curva
                 tilesCount = 0;
 
+                //Generamos las posiciones aleatorias donde iran ubicados los tiles
+                //de los obstaculos
                 GenerateIndexOfObstacles(nextCurve);
-
-                Debug.Log("PostCurve indexObstacle: " + indexObstacle[0]);
-                Debug.Log("PostCurve indexObstacle.Count: " + indexObstacle.Count);
-            }
-        }
-        else{
+                //Debug.Log("AfterCurve tileCount: " + tilesCount);
+                //Debug.Log("AfterCurve indexObstacle[0]: " + indexObstacle[0]);
+                }
+        }else{
             side = 0;
         }
-        Debug.Log("Fuera indexObstacle.Count: " + indexObstacle.Count);
-        Debug.Log("Fuera tileCount: " + tilesCount);
-
+        //Debug.Log("indexCount: " + indexObstacle.Count);
 
         //Si la direccion va en linea recta
         //instancia los tiles de linea recta
@@ -279,71 +281,57 @@ public class LevelManager : MonoBehaviour
             //Ya que este le va a indicar al usuario que está entrando a la nueva parte del mapa
             if(partTilesCount < 1){
                 tile = Instantiate(currentPart.initTile);
-            }
-
-            else if(partTilesCount < 2){
+            }else if(partTilesCount < 2){
                 tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
-            }
-
+            }else
             //Los dos tiles despues de la curva y la entrada a la nueva parte serán seguros en el centro
-            else if(tilesCount < 3){
+            if (tilesCount < 3){
                 
                 //Se instancia el de la posicion 1 ya que el de la posición 0 es la entrada a la nueva parte
                 //(Solo queremos que se instancie la entrada a esa parte una sola vez)
                 tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
-            }
-
-            //Si siguen los prefabs en linea recta (no hay una curva antes)
-            else{
-
+            }else{
+                //Debug.Log("tileCount: " + tilesCount);
+                //Si la lista no está vacia
                 if (indexObstacle.Count != 0)
                 {
-                    Debug.Log("tilesCount: " + tilesCount);
-                    Debug.Log("indexObstacle: " + indexObstacle[0]);
+                    //Debug.Log("indexObstacle[0]: " + indexObstacle[0]);
 
-
+                    //Si el numero del tile actual es igual al que debo ponerle un obstaculo
                     if (tilesCount == indexObstacle[0])
                     {
+                        //Instancio el obstaculo
                         tile = Instantiate(currentPart.obstacleTiles[RandomTileIndex(0, currentPart.obstacleTiles.Count)]) as GameObject;
+                        //Remuevo esa posicion de la lista y se reordena
                         indexObstacle.RemoveAt(0);
                     }
                     else
                     {
+                        //Si no, sigo poniendo tiles seguros
                         tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
-
                     }
-                }
-                else
-                {
+                }else{
+                    //Si no, sigo poniendo tiles seguros
                     tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
-
                 }
-                //Colocamos desde el 1 hasta el ultimo prefab del array que tiene los prefabs en direccion recta
-                //Comienza en 1 porque queremos que la posición 0 de los array en linea recta
-                //contenga el prefab de inicio de esa parte
-                //tile = Instantiate(currentPart.obstacleTiles[RandomTileIndex(0, currentPart.obstacleTiles.Count)]) as GameObject;
             }
-        }
-        //Si la direccion cambia a la derecha
-        //instancia los tiles de derecha
-        else if (side == 1){
+        }else if (side == 1){
+            //Si la direccion cambia a la derecha
+            //instancia los tiles de derecha
             tile = Instantiate(currentPart.rightTiles[RandomTileIndex(0, currentPart.rightTiles.Count)]) as GameObject;
-        }
-
-        //Si la direccion cambia a la izquierda
-        //instancia los tiles de izquierda
-        else{
+        }else{
+            //Si la direccion cambia a la izquierda
+            //instancia los tiles de izquierda
             tile = Instantiate(currentPart.leftTiles[RandomTileIndex(0, currentPart.leftTiles.Count)]) as GameObject;
         }
-
         
-
         //Hacemos padre del tile a este objeto LevelManager
         tile.transform.SetParent(transform);
 
-        //Posicionamos este nuevo tile en el lugar indicado por la var spawnZ
-        //Lo multiplicamos por forward ya que este vector es 1 en z
+        //Si solo hay 1 tile activo
         if(activeTiles.Count < 2){
+            //Posicionamos este nuevo tile en el lugar indicado por la var spawnZ
+            //Lo multiplicamos por forward ya que este vector es 1 en z
             tile.transform.position = Vector3.forward * spawnZ;
 
             //Sumamos al valor de posicion spawnZ el tamaño del tile
@@ -363,11 +351,9 @@ public class LevelManager : MonoBehaviour
             //Si se mantiene en linea recta sigue la direccion de rotacion local
             if(side == 0){
                 tile.transform.rotation = tileDirection.rotation;
-            }
-
-            //Si hay un giro en el mapa, el tile de giro mantiene la rotación normal (igual que el anterior)
-            //ya que este no girará si no los de linea recta que vienen despues del giro
-            else{
+            }else{
+                //Si hay un giro en el mapa, el tile de giro mantiene la rotación normal (igual que el anterior)
+                //ya que este no girará si no los de linea recta que vienen despues del giro
                 tile.transform.rotation = activeTiles[activeTiles.Count-1].transform.rotation;
             }
         }
@@ -400,49 +386,80 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    //Metodo encargado de agregar las nuevas posiciones
+    //donde iran ubicados los obstaculos en una recta
     public void GenerateIndexOfObstacles(int nextCurve)
     {
+        //Por defecto al menos 1 obstaculo
         int cantObstacles = 1;
 
-        if (nextCurve <= 11)
+        //Si antes de la proxima curva hay entre 10 y 11 tiles
+        if (nextCurve >= 10 && nextCurve <= 11)
         {
+            //Elijo aleatoriamente entre 1 o 2 obstaculos
             cantObstacles = Random.Range(1, 3);
         }
         else
         {
+            //Si es mayor a 11 tiles
+            //elijo aletoriamente entre 1 a 3 obstaculos
             cantObstacles = Random.Range(1, 4);
         }
 
+        //Objeto random
         System.Random rnd = new System.Random();
+
+        //Array que llevara las posibles posiciones a poner los tiles
         int[] obstacleTilePositions;
 
+        //Dependiendo de la cantidad de obstaculos que vamos a generar
         switch (cantObstacles)
         {
+            //Si es 1
             case 1:
-                obstacleTilePositions = new int[] { 4, 5, 6, 8 };
+                //Agrego las posibles posiciones al array
+                obstacleTilePositions = new int[] { 4, 5, 6, 7 };
+
+                //Escojo aleatoriamente una posicion y la agrego a la lista
                 indexObstacle.Add(obstacleTilePositions[rnd.Next(obstacleTilePositions.Length)]);
                 break;
+            //Si son 2
             case 2:
+                //Si la proxima curva es en 10 tiles
                 if (nextCurve == 10)
                 {
+                    //Los obstaculos se van a generar en la pos 4 y 7
                     indexObstacle.Add(4);
                     indexObstacle.Add(7);
-                }
+
+                }//Si la proxima curva tiene 11 tiles
                 else if (nextCurve == 11)
                 {
-                    obstacleTilePositions = new int[] { 4, 5, };
+                    //Agrego las posibles posiciones al array
+                    obstacleTilePositions = new int[] { 4, 5 };
+
+                    //Escojo aleatoriamente una posicion y la agrego a la lista
                     indexObstacle.Add(obstacleTilePositions[rnd.Next(obstacleTilePositions.Length)]);
+
+                    //Y agrego el otro en la pos 8
                     indexObstacle.Add(8);
-                }
+
+                }//Si la proxima curva tiene mas de 11 tiles
                 else
                 {
-                    obstacleTilePositions = new int[] { 8, 9, };
+                    //Agrego las posibles posiciones al array
+                    obstacleTilePositions = new int[] { 8, 9 };
+
+                    //Agrego manualmente la posicion 5
                     indexObstacle.Add(5);
+
+                    //Escojo aleatoriamente una posicion y la agrego a la lista
                     indexObstacle.Add(obstacleTilePositions[rnd.Next(obstacleTilePositions.Length)]);
                 }
                 break;
-
+            //Si son 3 obstaculos
             case 3:
+                //Agrego manualmente las 3 posiciones
                 indexObstacle.Add(3);
                 indexObstacle.Add(6);
                 indexObstacle.Add(9);

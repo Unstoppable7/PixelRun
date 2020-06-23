@@ -27,7 +27,7 @@ public class PlayerMotor : MonoBehaviour
     float verticalVelocity;
     [SerializeField]
     //Velocidad del personaje
-    float speed = 15f;
+    float speed = 10f;
 
     //Tiempo en segundos que dura en acelerar desde la velocidad inicial a la maxima
     float accelerationTime = 0.01f;

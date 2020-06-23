@@ -21,7 +21,8 @@ public class CharacterManager : MonoBehaviour
     [HideInInspector]
     public int characterTemp;
 
-    public TextMeshProUGUI characterButtonText;
+    public TextMeshProUGUI characteName;
+    public TextMeshProUGUI characterPrice;
 
     void Awake()
     {
@@ -82,11 +83,20 @@ public class CharacterManager : MonoBehaviour
     }
 
     public void SelectCharacter(){
-        GameManager.sharedInstance.PlayerCharacter = characterTemp;
-        GameManager.sharedInstance.motor.ChangePlayerCharacter();
+        if(GameManager.sharedInstance.TrySpendGoldAmount(characters[characterTemp].price)){
+            characters[characterTemp].price = 0;
+            GameManager.sharedInstance.PlayerCharacter = characterTemp;
+            GameManager.sharedInstance.motor.ChangePlayerCharacter();
+            ChangeButtonName();
+        }
+
+        else{
+            print("No se pude comprar el personaje: " + characters[characterTemp].name);
+        }
     }
 
     public void ChangeButtonName(){
-        characterButtonText.text = characters[characterTemp].name;
+        characteName.text = characters[characterTemp].name;
+        characterPrice.text = "" + characters[characterTemp].price;
     }
 }

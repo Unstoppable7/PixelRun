@@ -27,9 +27,17 @@ public class CameraFollow : MonoBehaviour
     //manteniendose quietos en el centro
     Transform playerLimits;
 
+    Vector3 startPosition;
+
+    Vector3 characterPosition = new Vector3(0, 1.5f, -3f);
+
+    public bool cameraFollow;
+
     void Start(){
         //Referencia al gameobject que contiene el collider con los limites
         playerLimits = GameObject.Find("PlayerLimits").transform;
+        startPosition = transform.position;
+        cameraFollow = false;
     }
 
     //Llamamos un metodo nativo de Unity el cual se llama cada vez que
@@ -69,7 +77,15 @@ public class CameraFollow : MonoBehaviour
             //La rotacion de los limites será siempre igual al del jugador para que estén siempre
             //a los lados del mismo. Asi evitamos los colliders en las paredes de cada prefab
             playerLimits.rotation = target.rotation;
-        }      
+        }
+
+        else if(CharacterManager.sharedInstance.change){
+            transform.position = Vector3.Lerp(transform.position, characterPosition, smoothSpeed * Time.deltaTime);
+        }
+
+        else if(!cameraFollow){
+            transform.position = Vector3.Lerp(transform.position, startPosition, smoothSpeed * Time.deltaTime);
+        }
     }
 
     //Asigna la posicion central de la camara para que no se pueda mover en el centro

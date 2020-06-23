@@ -102,6 +102,20 @@ public class TabGroup : MonoBehaviour
     //estan ordenadas segun su indice (de arriba hacia abajo)
     public void SwapPages(int index)
     {
+        //Si se presiona para cambiar de personaje
+        if(index == 1){
+            //Si no se ha presionado antes que inicie la seleccion de personajes
+            if(!CharacterManager.sharedInstance.change){
+                CharacterManager.sharedInstance.change = true;
+                CharacterManager.sharedInstance.DisplayChangeCharacter();
+            }
+        }
+
+        else{
+            CharacterManager.sharedInstance.change = false;
+            CharacterManager.sharedInstance.HiddenChangeCharacter();
+        }
+        
         //Recorremos todas las pages
         for (int i = 0; i < pagesToSwap.Count; i++)
         {   

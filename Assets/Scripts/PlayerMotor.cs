@@ -116,23 +116,16 @@ public class PlayerMotor : MonoBehaviour
     double lastMove;
 
     //Los datos del personaje que usará el jugador
-    CharacterData character;
+    Character character;
 
     // Start is called before the first frame update
     void Start()
     {
-        character = GameManager.sharedInstance.Characters[GameManager.sharedInstance.PlayerCharacter];
-
         controller = GetComponent<CharacterController>();
         animatorController = GetComponent<Animator>();
 
-        GameObject characterGameObject = Instantiate(character.model);
-        characterGameObject.name = "Character";
-        characterGameObject.transform.SetParent(transform);
+        ChangePlayerCharacter();
 
-        animatorController.avatar = character.avatar;
-
-        rotation = transform.Find("Character");
         isRunning = false;
 
         //Referenciamos la variable del giroscopio 
@@ -1010,5 +1003,23 @@ public class PlayerMotor : MonoBehaviour
         {
             move = 0;
         }
+    }
+
+    public void ChangePlayerCharacter(){
+        Transform currentCharacter = transform.Find("Character");
+
+        if(currentCharacter){
+            Destroy(currentCharacter.gameObject);
+        }
+
+        character = CharacterManager.sharedInstance.characters[GameManager.sharedInstance.PlayerCharacter];
+
+        GameObject characterGameObject = Instantiate(character.model);
+        characterGameObject.name = "Character";
+        characterGameObject.transform.SetParent(transform);
+
+        animatorController.avatar = character.avatar;
+
+        rotation = characterGameObject.transform;
     }
 }

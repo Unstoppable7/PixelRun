@@ -7,6 +7,5 @@ public class Character : ScriptableObject
 {
     public new string name;
     public int price;
-    public GameObject model;
-    public Avatar avatar;
+    public GameObject prefab;
 }

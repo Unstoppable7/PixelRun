@@ -48,7 +48,7 @@ public class CharacterManager : MonoBehaviour
         Vector3 targetPosition = Vector3.zero;
 
         foreach (Character character in characters){
-            Transform temp = Instantiate(character.model, Vector3.zero, Quaternion.Euler(0, 180f, 0)).transform;
+            Transform temp = Instantiate(character.prefab, Vector3.zero, Quaternion.Euler(0, 180f, 0)).transform;
             temp.SetParent(slide);
             temp.localPosition = targetPosition; 
             targetPosition += Vector3.right * characterDistance;

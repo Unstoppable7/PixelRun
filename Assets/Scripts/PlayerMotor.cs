@@ -122,7 +122,6 @@ public class PlayerMotor : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        animatorController = GetComponent<Animator>();
 
         ChangePlayerCharacter();
 
@@ -1014,12 +1013,11 @@ public class PlayerMotor : MonoBehaviour
 
         character = CharacterManager.sharedInstance.characters[GameManager.sharedInstance.PlayerCharacter];
 
-        GameObject characterGameObject = Instantiate(character.model);
+        GameObject characterGameObject = Instantiate(character.prefab);
         characterGameObject.name = "Character";
         characterGameObject.transform.SetParent(transform);
 
-        animatorController.avatar = character.avatar;
-
         rotation = characterGameObject.transform;
+        animatorController = characterGameObject.GetComponent<Animator>();
     }
 }

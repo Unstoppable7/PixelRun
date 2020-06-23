@@ -14,5 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Pam
   price: 100
-  model: {fileID: 6923301319168378933, guid: 4368c8e64d352c4489b378caf2d4674c, type: 3}
-  avatar: {fileID: 9000000, guid: b0a0ca7261b84d548be1882a80ca9226, type: 3}
+  prefab: {fileID: 6923301319168378933, guid: 4368c8e64d352c4489b378caf2d4674c, type: 3}

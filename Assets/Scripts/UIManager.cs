@@ -96,6 +96,8 @@ public class UIManager : MonoBehaviour
     }
     public void BackButton()
     {
+        CharacterManager.sharedInstance.HiddenChangeCharacter();
+        
         if (storePanel)
         {
             storePanel.SetActive(false);

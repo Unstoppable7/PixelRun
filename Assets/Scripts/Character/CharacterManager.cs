@@ -61,11 +61,13 @@ public class CharacterManager : MonoBehaviour
         slide.position = -(Vector3.right * characterDistance * characterTemp);
         ChangeButtonName();
         slide.gameObject.SetActive(true);
+        change = true;
     }
 
     public void HiddenChangeCharacter(){
         slide.gameObject.SetActive(false);
         GameManager.sharedInstance.motor.gameObject.SetActive(true);
+        change = false;
     }
 
     public void ChangeCharacterPosition(){

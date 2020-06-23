@@ -133,7 +133,6 @@ public class GameManager : MonoBehaviour, IShopCustomer
     {
         IsGameStarted = true;
         camera.cameraFollow = true;
-        CharacterManager.sharedInstance.change = false;
         CharacterManager.sharedInstance.HiddenChangeCharacter();
         motor.StartRun();
     }

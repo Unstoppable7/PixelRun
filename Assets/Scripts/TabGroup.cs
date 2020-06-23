@@ -106,13 +106,11 @@ public class TabGroup : MonoBehaviour
         if(index == 1){
             //Si no se ha presionado antes que inicie la seleccion de personajes
             if(!CharacterManager.sharedInstance.change){
-                CharacterManager.sharedInstance.change = true;
                 CharacterManager.sharedInstance.DisplayChangeCharacter();
             }
         }
 
         else{
-            CharacterManager.sharedInstance.change = false;
             CharacterManager.sharedInstance.HiddenChangeCharacter();
         }
         

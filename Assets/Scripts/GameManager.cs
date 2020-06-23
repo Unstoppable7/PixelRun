@@ -47,6 +47,10 @@ public class GameManager : MonoBehaviour, IShopCustomer
     //Guarda las coroutinas para poder detenerlas
     Coroutine coroutineShield;
 
+    //Personaje actual del jugador
+    [HideInInspector]
+    public int PlayerCharacter;
+
 #endregion
 
     public event EventHandler OnScoreAmountChanged;
@@ -87,7 +91,7 @@ public class GameManager : MonoBehaviour, IShopCustomer
 
     // Update is called once per frame
     void Update()
-    {                   
+    {            
         //Si el juego ya inició
         if (IsGameStarted)
         {
@@ -128,6 +132,8 @@ public class GameManager : MonoBehaviour, IShopCustomer
     public void StartGame()
     {
         IsGameStarted = true;
+        camera.cameraFollow = true;
+        CharacterManager.sharedInstance.HiddenChangeCharacter();
         motor.StartRun();
     }
 
@@ -299,6 +305,7 @@ public class GameManager : MonoBehaviour, IShopCustomer
         {
             //Asignamos los datos extraidos a las variables actuales
             Coins = data.Coins;
+            PlayerCharacter = data.Character;
         }
         else
         {
@@ -436,6 +443,8 @@ public class GameManager : MonoBehaviour, IShopCustomer
     {
         camera.transform.SetPositionAndRotation(initPositionCamera.transform.position, 
                                                 initPositionCamera.transform.rotation);
+
+        camera.cameraFollow = false;
     }
 
     public void ResetGame()

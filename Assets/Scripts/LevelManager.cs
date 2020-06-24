@@ -127,14 +127,14 @@ public class LevelManager : MonoBehaviour
     bool prefabPart = true;
 
     //Variable que será manejada dependiendo de la dificultad del juego
-    //inicialmente tomara los 11 primeros tiles de obstaculos del array
+    //inicialmente tomara los 9 primeros tiles de obstaculos del array
     //al pasar a dificultad media toma la totalidad del array ya que
-    //luego del 11 se encuentran mas dificiles
+    //luego del 9 se encuentran mas dificiles
     //todos los arrays de obstaculos de cada parte del mundo debe ser de 
     //11 tiles o si no se debe modificar esta variable
-    //usamos 10 porque el random es inclusivo y no existe objeto en la
-    //posicion 11
-    int maxIndexObstacleTile = 10;
+    //usamos 8 porque el random es inclusivo y no existe objeto en la
+    //posicion 9
+    int maxIndexObstacleTile = 8;
 
     //Temporizador para manejar el OnFastCurves
     Timer aTimer = new System.Timers.Timer();

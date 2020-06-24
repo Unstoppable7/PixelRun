@@ -109,7 +109,7 @@ public class PlayerMotor : MonoBehaviour
     float inputAccelerometer;
 
     //Velocidad horizontal a aplicar cuando el jugador gire el telefono
-    public float sensitivityAccelerometer { get; set; } = 2f;
+    public float sensitivityAccelerometer { get; set; } = 1.5f;
 
     public float move { get; set; } = 0;
 
@@ -774,6 +774,8 @@ public class PlayerMotor : MonoBehaviour
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
+            float largeOfSwipe = 150f;
+
             //bool band = true;
             //Si hay al menos un touch y este está en fase de inicio recien tocado
             //sin soltarse, guardo la posicion inicial de ese primer touch
@@ -788,27 +790,27 @@ public class PlayerMotor : MonoBehaviour
                 //Guardo la posicion final de este touch
                 endTouchPosition = touch.position;
 
-                if (endTouchPosition.y - 200f > startTouchPosition.y && direction == 1)
+                if (endTouchPosition.y - largeOfSwipe > startTouchPosition.y && direction == 1)
                 {
                     //swipeUp = true;
                     return true;
                 }
 
-                if (endTouchPosition.y + 200f < startTouchPosition.y && direction == 2)
+                if (endTouchPosition.y + largeOfSwipe < startTouchPosition.y && direction == 2)
                 {
                     //swipeDown = true;
                     return true;
 
                 }
 
-                if (endTouchPosition.x - 200f > startTouchPosition.x && direction == 3)
+                if (endTouchPosition.x - largeOfSwipe > startTouchPosition.x && direction == 3)
                 {
                     //swipeRight = true;
                     return true;
 
                 }
 
-                if (endTouchPosition.x + 200f < startTouchPosition.x && direction == 4)
+                if (endTouchPosition.x + largeOfSwipe < startTouchPosition.x && direction == 4)
                 {
                     //swipeLeft = true;
                     return true;

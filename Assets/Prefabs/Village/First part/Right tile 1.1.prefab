@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1452219968736262290}
   - component: {fileID: -4476331000361439454}
   m_Layer: 0
-  m_Name: Right tile 1
+  m_Name: Right tile 1.1
   m_TagString: ChangeDirection
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,8 +45,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 6, y: 2.5, z: 6}
-  m_Center: {x: 0.1, y: 1.25, z: 0}
+  m_Size: {x: 8, y: 4.5, z: 6}
+  m_Center: {x: 1.5, y: 2.5, z: 0}
 --- !u!114 &-4476331000361439454
 MonoBehaviour:
   m_ObjectHideFlags: 0

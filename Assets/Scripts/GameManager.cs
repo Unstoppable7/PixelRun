@@ -5,6 +5,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+public enum Difficulty
+{
+    easy,
+    medium,
+    hard
+}
+
 public class GameManager : MonoBehaviour, IShopCustomer
 {
     //Singleton
@@ -55,6 +62,9 @@ public class GameManager : MonoBehaviour, IShopCustomer
 
     public event EventHandler OnScoreAmountChanged;
 
+    //Variable que maneja la dificultad actual del juego
+    public Difficulty currentDifficulty;
+
     private void Awake()
     {
         if (!sharedInstance)
@@ -87,6 +97,10 @@ public class GameManager : MonoBehaviour, IShopCustomer
 
         //Actualizamos las monedas disponibles del jugador
         userInterfaceManager.UpdateCoinsAvailable(Coins);
+
+        //Dificultad inicial del juego
+        this.currentDifficulty = Difficulty.easy;
+    
     }
 
     // Update is called once per frame
@@ -102,6 +116,19 @@ public class GameManager : MonoBehaviour, IShopCustomer
 
             //Imprimimos por pantalla nuestra puntuacion con un solo digito
             //print("Puntacion: " + Score.ToString("0"));
+        }
+
+        //Tiempos en los que la dificultad cambia
+        if(Time.timeScale >= 1.5f)
+        {
+            currentDifficulty = Difficulty.hard;
+        }
+        else
+        {
+            if(Time.timeScale >= 1.25f)
+            {
+                currentDifficulty = Difficulty.medium;
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Timers;
 using UnityEngine;
 
 [System.Serializable]
@@ -13,7 +14,10 @@ public class MapPart{
 
     //Guarda los tiles seguros, tiles que no tienen obstaculos
     public List<GameObject> safeTiles = new List<GameObject>();
-    
+
+    //Guarda los tiles de la recta prediseñada
+    public List<GameObject> straightPrefab = new List<GameObject>();
+
     //Guarda los tiles que giran a la izquierda el mapa
     public List<GameObject> rightTiles = new List<GameObject>();
     
@@ -39,12 +43,7 @@ public class MapPart{
         tilesCount = Random.Range(minTilesCount, maxTilesCount);
     }
 }
-public enum Difficulty
-{
-    easy,
-    medium,
-    hard
-}
+
 public class LevelManager : MonoBehaviour
 {
     //Singleton
@@ -91,7 +90,7 @@ public class LevelManager : MonoBehaviour
     int minNextCurve = 10;
 
     //Maximo valor que tendrá la siguiente curva
-    int maxNextCurve = 11;
+    int maxNextCurve = 13;
 
     //Cantidad de tiles desde la ultima curva
     int tilesCount = 0;
@@ -120,11 +119,23 @@ public class LevelManager : MonoBehaviour
 
     #endregion
 
-    //Variable que maneja la dificultad actual del juego
-    public Difficulty currentDifficulty = Difficulty.easy;
-
     //Lista con los numeros de la posicion donde van a ir ubicados los obstaculos
     List<int> indexObstacle;
+
+    bool prefabPart = true;
+
+    //Variable que será manejada dependiendo de la dificultad del juego
+    //inicialmente tomara los 11 primeros tiles de obstaculos del array
+    //al pasar a dificultad media toma la totalidad del array ya que
+    //luego del 11 se encuentran mas dificiles
+    //todos los arrays de obstaculos de cada parte del mundo debe ser de 
+    //11 tiles o si no se debe modificar esta variable
+    //usamos 10 porque el random es inclusivo y no existe objeto en la
+    //posicion 11
+    int maxIndexObstacleTile = 10;
+
+    //Temporizador para manejar el hardDifficultyMode
+    Timer aTimer = new System.Timers.Timer();
 
     void Awake(){
         if (!sharedInstance)
@@ -141,6 +152,11 @@ public class LevelManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //Configuracion del temporizador, durará 10seg y llama al
+        //metodo OnTimedEvent
+        aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+        aTimer.Interval = 15000;
+
         //Referenciamos el transform del personaje
         playerTransform = GameObject.FindGameObjectWithTag("Player")
                             .transform;
@@ -175,8 +191,44 @@ public class LevelManager : MonoBehaviour
 
         if (Vector3.Distance(playerTransform.position, activeTiles[0].transform.position) > safeZone)
         {
-            //Creamos un nuevo tile en nuestro camino
-            SpawnTile();
+
+            if(GameManager.sharedInstance.currentDifficulty == Difficulty.easy)
+            {
+                //Creamos un nuevo tile en nuestro camino
+                SpawnTile();
+
+            }
+            else
+            {
+                MediumDifficultyMode();
+
+                if (prefabPart)
+                {
+                    SpawnTile(false);
+                }
+                else
+                {
+                    SpawnTile();
+
+                    int rnd = Random.Range(0, 25);
+                    if(rnd == 7)
+                    {
+                        prefabPart = true;
+                    }
+                }
+
+                //TODO Probar y si no funciona cambiar probabilidades
+                if (GameManager.sharedInstance.currentDifficulty == Difficulty.hard)
+                {
+                    int rnd = Random.Range(0, 15);
+                    if (rnd ==7)
+                    {
+                        HardDifficultyMode(true);
+                        aTimer.Enabled = true;
+                    }
+                    Debug.Log(rnd);
+                }
+            }
 
             //Eliminamos el ultimo tile
             DeleteLastTile();
@@ -196,6 +248,15 @@ public class LevelManager : MonoBehaviour
                 GameManager.sharedInstance.SetImmunePlayer(false);
             }
         }
+    }
+
+    // Specify what you want to happen when the Elapsed event is raised.
+    private void OnTimedEvent(object source, ElapsedEventArgs e)
+    {
+        aTimer.Enabled = false;
+        HardDifficultyMode(false);
+        Debug.Log("Entra");
+
     }
 
     //Spawn inicial de los tiles 
@@ -238,7 +299,7 @@ public class LevelManager : MonoBehaviour
 
     //Metodo para spawnear o aparecer un tile en pantalla
     //prefabIndex: Nos indica que tile de la lista vamos a spawnear
-    public void SpawnTile()
+    public void SpawnTile(bool random = true)
     {    
         //Objeto que tendrá el tile instanciado
         GameObject tile;
@@ -257,14 +318,24 @@ public class LevelManager : MonoBehaviour
             }else{
                 //Se elige una direccion aleatoria
                 side = DIRECTIONS[Random.Range(0, DIRECTIONS.Length)];
-                //Se elige la cantidad de tiles de la siguiente curva
-                nextCurve = Random.Range(minNextCurve, maxNextCurve);
+
                 //Se asigna a cero la cantidad de tiles despues de la curva ya que se crea una nueva curva
                 tilesCount = 0;
 
-                //Generamos las posiciones aleatorias donde iran ubicados los tiles
-                //de los obstaculos
-                GenerateIndexOfObstacles(nextCurve);
+                if (!random)
+                {
+                    nextCurve = 15;
+                }
+                else
+                {
+                    //Se elige la cantidad de tiles de la siguiente curva
+                    nextCurve = Random.Range(minNextCurve, maxNextCurve);
+
+                    //Generamos las posiciones aleatorias donde iran ubicados los tiles
+                    //de los obstaculos
+                    GenerateIndexOfObstacles(nextCurve);
+
+                }
                 //Debug.Log("AfterCurve tileCount: " + tilesCount);
                 //Debug.Log("AfterCurve indexObstacle[0]: " + indexObstacle[0]);
                 }
@@ -281,41 +352,60 @@ public class LevelManager : MonoBehaviour
             //Ya que este le va a indicar al usuario que está entrando a la nueva parte del mapa
             if(partTilesCount < 1){
                 tile = Instantiate(currentPart.initTile);
-            }else if(partTilesCount < 2){
-                tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
-            }else
-            //Los dos tiles despues de la curva y la entrada a la nueva parte serán seguros en el centro
-            if (tilesCount < 3){
+            }else if (nextCurve  < 15){
                 
-                //Se instancia el de la posicion 1 ya que el de la posición 0 es la entrada a la nueva parte
-                //(Solo queremos que se instancie la entrada a esa parte una sola vez)
-                tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
-            }else{
-                //Debug.Log("tileCount: " + tilesCount);
-                //Si la lista no está vacia
-                if (indexObstacle.Count != 0)
-                {
-                    //Debug.Log("indexObstacle[0]: " + indexObstacle[0]);
+                if(partTilesCount < 2){
+                    tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
+                }else
+                //Los dos tiles despues de la curva y la entrada a la nueva parte serán seguros en el centro
+                if (tilesCount < 3){
+                
+                    //Se instancia el de la posicion 1 ya que el de la posición 0 es la entrada a la nueva parte
+                    //(Solo queremos que se instancie la entrada a esa parte una sola vez)
+                    tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
+                }else{
+                    //Debug.Log("tileCount: " + tilesCount);
+                    //Si la lista no está vacia
+                    if (indexObstacle.Count != 0)
+                    {
+                        //Debug.Log("indexObstacle[0]: " + indexObstacle[0]);
 
-                    //Si el numero del tile actual es igual al que debo ponerle un obstaculo
-                    if (tilesCount == indexObstacle[0])
-                    {
-                        //Instancio el obstaculo
-                        tile = Instantiate(currentPart.obstacleTiles[RandomTileIndex(0, currentPart.obstacleTiles.Count)]) as GameObject;
-                        //Remuevo esa posicion de la lista y se reordena
-                        indexObstacle.RemoveAt(0);
-                    }
-                    else
-                    {
+                        //Si el numero del tile actual es igual al que debo ponerle un obstaculo
+                        if (tilesCount == indexObstacle[0])
+                        {
+                            //Instancio el obstaculo
+                            tile = Instantiate(currentPart.obstacleTiles[RandomTileIndex(0, maxIndexObstacleTile)]) as GameObject;
+                            //Remuevo esa posicion de la lista y se reordena
+                            indexObstacle.RemoveAt(0);
+                        }
+                        else
+                        {
+                            //Si no, sigo poniendo tiles seguros
+                            tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
+                        }
+                    }else{
                         //Si no, sigo poniendo tiles seguros
                         tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
                     }
-                }else{
-                    //Si no, sigo poniendo tiles seguros
-                    tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
                 }
             }
-        }else if (side == 1){
+            else
+            {
+                //Debug.Log("tilesCount: " + tilesCount);
+                //TODO cambiar el array safeTiles por el array con la zona recta prediseñada
+                //intentar hacer aleatorio la eleccion entre los arrays prediseñados que hayan
+                //Deben ser un tile menos que la nextCurve es decir 14, por que la curva se
+                //cuenta como el primer tile
+                //hacemos tilesCount-1 porque cuanta el cero es en la curva
+                tile = Instantiate(currentPart.straightPrefab[tilesCount-1]) as GameObject;
+
+                if(tilesCount == currentPart.straightPrefab.Count - 1)
+                {
+                    prefabPart = false;
+                }
+            }
+        }
+        else if (side == 1){
             //Si la direccion cambia a la derecha
             //instancia los tiles de derecha
             tile = Instantiate(currentPart.rightTiles[RandomTileIndex(0, currentPart.rightTiles.Count)]) as GameObject;
@@ -399,11 +489,15 @@ public class LevelManager : MonoBehaviour
             //Elijo aleatoriamente entre 1 o 2 obstaculos
             cantObstacles = Random.Range(1, 3);
         }
-        else
+        else if(nextCurve == 12)
         {
             //Si es mayor a 11 tiles
             //elijo aletoriamente entre 1 a 3 obstaculos
             cantObstacles = Random.Range(1, 4);
+        }
+        else
+        {
+            return;
         }
 
         //Objeto random
@@ -525,4 +619,31 @@ public class LevelManager : MonoBehaviour
     public void SetLastImmunityTile(){
         lastImmunityTile = activeTiles.Count-1;
     }
+
+    //Metodo que modificará ciertos parametros para hacer el vj mucho más dificil
+    public void HardDifficultyMode(bool active)
+    {
+        if (active)
+        {
+            //Modificamos los tiles minimos para que se de una curva
+            //de esta forma habrán curvas mucho mas seguido
+            minNextCurve = 5;
+            maxNextCurve = 7;
+
+        }
+        else
+        {
+            minNextCurve = 10;
+            maxNextCurve = 13;
+        }
+    }
+
+    //Metodo que modificará ciertos parametros para hacer el vj más dificil
+    public void MediumDifficultyMode()
+    {
+        //El maximo pasa a ser la totalidad de los tiles del array
+        maxIndexObstacleTile = currentPart.obstacleTiles.Count-1;
+        
+    }
+
 }

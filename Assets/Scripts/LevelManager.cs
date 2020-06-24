@@ -119,9 +119,11 @@ public class LevelManager : MonoBehaviour
 
     #endregion
 
-    //Lista con los numeros de la posicion donde van a ir ubicados los obstaculos
+    //Lista con las posiciones donde van a ir ubicados los obstaculos en la recta
+    //en cada recta se toma el primer tile como el de la curva, siendo 0
     List<int> indexObstacle;
 
+    //Bandera para manejar cuando se va a generar una recta prediseñada en el mapa
     bool prefabPart = true;
 
     //Variable que será manejada dependiendo de la dificultad del juego
@@ -134,7 +136,7 @@ public class LevelManager : MonoBehaviour
     //posicion 11
     int maxIndexObstacleTile = 10;
 
-    //Temporizador para manejar el hardDifficultyMode
+    //Temporizador para manejar el OnFastCurves
     Timer aTimer = new System.Timers.Timer();
 
     void Awake(){
@@ -146,14 +148,13 @@ public class LevelManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        //Configuracion del temporizador, durará 10seg y llama al
-        //metodo OnTimedEvent
+        //Configuracion del temporizador, durará 15seg y al terminar
+        //llama al metodo OnTimedEvent
         aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
         aTimer.Interval = 15000;
 
@@ -191,25 +192,31 @@ public class LevelManager : MonoBehaviour
 
         if (Vector3.Distance(playerTransform.position, activeTiles[0].transform.position) > safeZone)
         {
-
+            //Si la dificultad actual es facil
             if(GameManager.sharedInstance.currentDifficulty == Difficulty.easy)
             {
-                //Creamos un nuevo tile en nuestro camino
+                //Creamos un nuevo tile simple en nuestro camino
                 SpawnTile();
-
             }
             else
-            {
+            {//Si no, si es media o alta
+
+                //Llamamos a modo dificultad media
                 MediumDifficultyMode();
 
+                //Si la bandera de recta prediseñada está activa
                 if (prefabPart)
                 {
+                    //Iniciamos la logica de generar la recta prediseñada
                     SpawnTile(false);
                 }
                 else
                 {
+                    //Creamos un tile simple
                     SpawnTile();
 
+                    //Numero aleatorio que manejará la probabilidad de que
+                    //se creen rectas prediseñadas
                     int rnd = Random.Range(0, 25);
                     if(rnd == 7)
                     {
@@ -217,16 +224,20 @@ public class LevelManager : MonoBehaviour
                     }
                 }
 
-                //TODO Probar y si no funciona cambiar probabilidades
+                //Si la dificultad actual es dificil
                 if (GameManager.sharedInstance.currentDifficulty == Difficulty.hard)
                 {
+                    //Numero aleatorio que manejará la probabilidad de que
+                    //se creen curvas rapidas, iniciamos el timer
+                    //para que se generen las curvas por al menos 15sec
+                    //creando aproximadamente entre 4/5 curvas seguidas
+                    //o menos
                     int rnd = Random.Range(0, 15);
                     if (rnd ==7)
                     {
-                        HardDifficultyMode(true);
+                        OnFastCurves(true);
                         aTimer.Enabled = true;
                     }
-                    Debug.Log(rnd);
                 }
             }
 
@@ -250,11 +261,11 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    // Specify what you want to happen when the Elapsed event is raised.
+    //Metodo que se llamará al acabar el timer
     private void OnTimedEvent(object source, ElapsedEventArgs e)
     {
         aTimer.Enabled = false;
-        HardDifficultyMode(false);
+        OnFastCurves(false);
         Debug.Log("Entra");
 
     }
@@ -298,35 +309,40 @@ public class LevelManager : MonoBehaviour
     }
 
     //Metodo para spawnear o aparecer un tile en pantalla
-    //prefabIndex: Nos indica que tile de la lista vamos a spawnear
+    //bool random: Nos genera la logica si se crean tiles
+    //aleatorios o una secuencia prediseñada
     public void SpawnTile(bool random = true)
     {    
         //Objeto que tendrá el tile instanciado
         GameObject tile;
 
-        //Si se llama sin especificar, por defecto busco uno aleatorio
         //Si es momento de crear la curva
         if (nextCurve - tilesCount == 0){
 
-            //Si la siguiente curva y la cantidad de tiles de la parte actual son iguales
-            //(si la proxima curva será el inicio de la proxima parte)
+            //Si en la parte o zona actual se va a generar el primer tile
+            //es decir la transicion entre partes, no realizo la curva aqui
+            //sino en el siguiente tile
             if(currentPart.tilesCount < 1){
-                //atrasamos la curva 1 tile mas para que se pueda poner el prefab
-                //de inicio de la parte siguiente del mapa
+
+                //Atrasamos la curva 1 tile mas para que se pueda poner el prefab
+                //de inicio de la parte siguiente del mundo
                 nextCurve++;
                 side = 0;
             }else{
+
                 //Se elige una direccion aleatoria
                 side = DIRECTIONS[Random.Range(0, DIRECTIONS.Length)];
 
                 //Se asigna a cero la cantidad de tiles despues de la curva ya que se crea una nueva curva
                 tilesCount = 0;
 
+                //Si no se van a tomar tiles aleatorios si no prediseñados
                 if (!random)
                 {
+                    //La proxima curva se va a generar en 15 tiles
                     nextCurve = 15;
                 }
-                else
+                else //Si no, generamos la curva de forma aleatoria al igual que los tiles
                 {
                     //Se elige la cantidad de tiles de la siguiente curva
                     nextCurve = Random.Range(minNextCurve, maxNextCurve);
@@ -336,22 +352,23 @@ public class LevelManager : MonoBehaviour
                     GenerateIndexOfObstacles(nextCurve);
 
                 }
-                //Debug.Log("AfterCurve tileCount: " + tilesCount);
-                //Debug.Log("AfterCurve indexObstacle[0]: " + indexObstacle[0]);
-                }
+            }
         }else{
             side = 0;
         }
-        //Debug.Log("indexCount: " + indexObstacle.Count);
 
         //Si la direccion va en linea recta
         //instancia los tiles de linea recta
         if (side == 0){
+
             //El primer tile de la nueva parte del mapa será el prefab en la posición 0 del array
             //Solo se instancia una vez este prefab durante toda la creción de la nueva parte
             //Ya que este le va a indicar al usuario que está entrando a la nueva parte del mapa
             if(partTilesCount < 1){
                 tile = Instantiate(currentPart.initTile);
+
+                //Si no, si la siguiente curva es menor a 15 tiles pasamos a la logica de generacion
+                //de tiles en forma aleatoria
             }else if (nextCurve  < 15){
                 
                 if(partTilesCount < 2){
@@ -364,11 +381,10 @@ public class LevelManager : MonoBehaviour
                     //(Solo queremos que se instancie la entrada a esa parte una sola vez)
                     tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
                 }else{
-                    //Debug.Log("tileCount: " + tilesCount);
+
                     //Si la lista no está vacia
                     if (indexObstacle.Count != 0)
                     {
-                        //Debug.Log("indexObstacle[0]: " + indexObstacle[0]);
 
                         //Si el numero del tile actual es igual al que debo ponerle un obstaculo
                         if (tilesCount == indexObstacle[0])
@@ -388,19 +404,27 @@ public class LevelManager : MonoBehaviour
                         tile = Instantiate(currentPart.safeTiles[RandomTileIndex(0, currentPart.safeTiles.Count)]) as GameObject;
                     }
                 }
-            }
+            
+            } 
+            //Si no, si la siguiente curva es dentro de 15 tiles pasamos a la logica de 
+            //generacion de recta prediseñada
             else
             {
-                //Debug.Log("tilesCount: " + tilesCount);
-                //TODO cambiar el array safeTiles por el array con la zona recta prediseñada
-                //intentar hacer aleatorio la eleccion entre los arrays prediseñados que hayan
+                //TRY hacer aleatorio la eleccion entre los arrays prediseñados que hayan
                 //Deben ser un tile menos que la nextCurve es decir 14, por que la curva se
-                //cuenta como el primer tile
-                //hacemos tilesCount-1 porque cuanta el cero es en la curva
+                //cuenta como el primer tile.
+                //Hacemos tilesCount-1 porque tilesCount cuenta el cero en la curva antes
+                //de la recta, si no llegaria a la posicion 14 y son de 0-13
                 tile = Instantiate(currentPart.straightPrefab[tilesCount-1]) as GameObject;
 
+                //Si el numero de tiles creados en esta recta es igual a la cantidad total del
+                //array prediseñado -1 hemos llegado a un tile antes del final, 
+                //entonces en la siguiente vuelta pasamos a la logica de generacion aleatoria
+                //que al seguir nextCurve en 15 no pasará nada, pero ya random será falso y 
+                //en la siguiente vuelta la curva si se genera aleatoria y continua normal
                 if(tilesCount == currentPart.straightPrefab.Count - 1)
                 {
+                    //Dejamos de generar rectas prediseñadas
                     prefabPart = false;
                 }
             }
@@ -427,6 +451,7 @@ public class LevelManager : MonoBehaviour
             //Sumamos al valor de posicion spawnZ el tamaño del tile
             spawnZ += tileLenght;
         }else{
+
             //Se posiciona el nuevo tile tomando como referencia la posicion del tile anterior
             //y se usa la direccion local de tileDirecion (tileDirecion.forward) para que se siga colocando en linea recta
             //dependiendo de hacia donde esté rotado ese transform, como se usa como referencia el tile anterior obteniendo
@@ -620,13 +645,16 @@ public class LevelManager : MonoBehaviour
         lastImmunityTile = activeTiles.Count-1;
     }
 
-    //Metodo que modificará ciertos parametros para hacer el vj mucho más dificil
-    public void HardDifficultyMode(bool active)
+    //Metodo que cambiará los limites establecidos para escoger el tamaño
+    //de la recta o la distancia entre cada curva, generando rectas 
+    //cortas
+    public void OnFastCurves(bool active)
     {
         if (active)
         {
-            //Modificamos los tiles minimos para que se de una curva
-            //de esta forma habrán curvas mucho mas seguido
+            //Modificamos los tiles minimos entre cada curva
+            //para que se den curvas mas rapido, haciendo la
+            //zona recta mas corta
             minNextCurve = 5;
             maxNextCurve = 7;
 
@@ -642,8 +670,8 @@ public class LevelManager : MonoBehaviour
     public void MediumDifficultyMode()
     {
         //El maximo pasa a ser la totalidad de los tiles del array
+        //desbloqueando así tiles de obstaculos mas complejos de atravesar
         maxIndexObstacleTile = currentPart.obstacleTiles.Count-1;
-        
     }
 
 }

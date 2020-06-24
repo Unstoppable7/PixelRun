@@ -5047,6 +5047,7 @@ MonoBehaviour:
   characterTemp: 0
   characteName: {fileID: 1070508672}
   characterPrice: {fileID: 1368408003}
+  isChange: 0
 --- !u!4 &1230699703
 Transform:
   m_ObjectHideFlags: 0

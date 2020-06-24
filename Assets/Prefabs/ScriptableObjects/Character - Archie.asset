@@ -15,3 +15,5 @@ MonoBehaviour:
   name: Archie
   price: 0
   prefab: {fileID: 4256430887428629720, guid: b666550d06f106e46acbbd9e22879280, type: 3}
+  idleAnimation: {fileID: -203655887218126122, guid: 68766fb14b5db1b4a9de945395161107,
+    type: 3}

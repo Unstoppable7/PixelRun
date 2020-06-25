@@ -122,8 +122,8 @@ public class PlayerMotor : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        animatorController = GetComponent<Animator>();
 
+        //Actualiza al personaje con sus animaciones y el modelo
         ChangePlayerCharacter();
 
         isRunning = false;
@@ -1005,21 +1005,27 @@ public class PlayerMotor : MonoBehaviour
         }
     }
 
+    //Actualiza el personaje con sus animaciones y su modelo
     public void ChangePlayerCharacter(){
+        //Si hay un personaje activo lo elimina
         Transform currentCharacter = transform.Find("Character");
 
         if(currentCharacter){
             Destroy(currentCharacter.gameObject);
         }
 
+        //Se actualiza el modelo y animator del personaje que tiene seleccionado (guardado)
         character = CharacterManager.sharedInstance.characters[GameManager.sharedInstance.PlayerCharacter];
 
-        GameObject characterGameObject = Instantiate(character.model);
+        //Se crea el juego Character dentro del GameObject Player
+        GameObject characterGameObject = Instantiate(character.prefab);
         characterGameObject.name = "Character";
         characterGameObject.transform.SetParent(transform);
 
-        animatorController.avatar = character.avatar;
-
+        //Se actualiza los objetos de rotacion para girar al personaje cuando esté jugando
         rotation = characterGameObject.transform;
+
+        //Y se actualiza el animator para poder realizar las animaciones
+        animatorController = characterGameObject.GetComponent<Animator>();
     }
 }

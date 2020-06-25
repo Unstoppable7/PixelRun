@@ -5047,6 +5047,7 @@ MonoBehaviour:
   characterTemp: 0
   characteName: {fileID: 1070508672}
   characterPrice: {fileID: 1368408003}
+  isChange: 0
 --- !u!4 &1230699703
 Transform:
   m_ObjectHideFlags: 0
@@ -5491,7 +5492,7 @@ MonoBehaviour:
     - {fileID: 4503776755741816621, guid: 04eb9395518ad2145b21d925759c643e, type: 3}
     - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
     - {fileID: 3693848415660717956, guid: 29b92d4d89d60224ba6879ccb6d202a7, type: 3}
-    - {fileID: 926381930882892531, guid: 163737564737f207275666162637f267, type: 3}
+    - {fileID: 926381930882892531, guid: 02c444078d2000000bc444078d200000, type: 3}
     - {fileID: 3596907674210241752, guid: 83a4ea543324c6946bdf0b8c6c692ecd, type: 3}
     - {fileID: 5400577744180114185, guid: c84ab13ab121a00468c65accd6ad0838, type: 3}
     - {fileID: 4602660513870139130, guid: c7540ee473e87b24fbe132c8e59c9f5e, type: 3}
@@ -9081,25 +9082,6 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 2138047605}
   m_PrefabAsset: {fileID: 0}
---- !u!95 &3166231814941592218
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8296172668137248243}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 24293e2b24ffd4500aa56d7ac3fd7eea, type: 2}
-  m_CullingMode: 1
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &3512471392309974259
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9722,7 +9704,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5006512735856814048}
-  - component: {fileID: 3166231814941592218}
   - component: {fileID: 1102007549}
   - component: {fileID: 1102007548}
   m_Layer: 0

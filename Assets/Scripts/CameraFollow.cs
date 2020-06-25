@@ -27,10 +27,13 @@ public class CameraFollow : MonoBehaviour
     //manteniendose quietos en el centro
     Transform playerLimits;
 
+    //Guarda la posición inicial de la camara
     Vector3 startPosition;
 
+    //Guarda la posición que tendrá la camara cuando se quiere cambiar de personaje
     Vector3 characterPosition = new Vector3(0, 1.5f, -3f);
 
+    //Hace que la camara siga al personaje cuando esté jugando o no
     public bool cameraFollow;
 
     void Start(){
@@ -79,10 +82,14 @@ public class CameraFollow : MonoBehaviour
             playerLimits.rotation = target.rotation;
         }
 
+        //Si el cambio de personajes está activo
+        //se desplaza hasta la posición para ver de cerca  a los personajes
         else if(CharacterManager.sharedInstance.change){
             transform.position = Vector3.Lerp(transform.position, characterPosition, smoothSpeed * Time.deltaTime);
         }
 
+        //Si la camara no seguirá al jugador pero tampoco estará viendo a los personajes
+        //se coloca como estaba al inicio
         else if(!cameraFollow){
             transform.position = Vector3.Lerp(transform.position, startPosition, smoothSpeed * Time.deltaTime);
         }

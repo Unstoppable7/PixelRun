@@ -104,14 +104,24 @@ public class TabGroup : MonoBehaviour
     {
         //Si se presiona para cambiar de personaje
         if(index == 1){
-            //Si no se ha presionado antes que inicie la seleccion de personajes
+            //Si no se ha presionado antes, que inicie la seleccion de personajes
             if(!CharacterManager.sharedInstance.change){
+                //Muestra la seleccion de personajes
                 CharacterManager.sharedInstance.DisplayChangeCharacter();
             }
         }
 
-        else{
+        //Si se presiona otro tab y las animaciones de cambio de personaje ya fueronr realizadas
+        //se oculta la seleccion de personajes (solo cambia de tab cuando se termine la animacion del personaje)
+        else if(CharacterManager.sharedInstance.isChange){
+            //Se oculta la seleccion de personajes
             CharacterManager.sharedInstance.HiddenChangeCharacter();
+        }
+
+        else{
+            //Si se presiona algun tab y no se ha terminado la animacion de cambio de personaje
+            //no cambia la pestaña (solo cambia hasta que la animacion haya terminado)
+            return;
         }
         
         //Recorremos todas las pages

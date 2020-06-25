@@ -441,6 +441,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4256430887428629735}
+  - component: {fileID: 5340505586812127908}
   m_Layer: 0
   m_Name: Archie
   m_TagString: Untagged
@@ -464,6 +465,25 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &5340505586812127908
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4256430887428629720}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: b0a0ca7261b84d548be1882a80ca9226, type: 3}
+  m_Controller: {fileID: 9100000, guid: 24293e2b24ffd4500aa56d7ac3fd7eea, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &4773881011128374817
 GameObject:
   m_ObjectHideFlags: 0

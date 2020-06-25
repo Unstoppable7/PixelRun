@@ -96,7 +96,17 @@ public class UIManager : MonoBehaviour
     }
     public void BackButton()
     {
-        CharacterManager.sharedInstance.HiddenChangeCharacter();
+        //Si la animacion de cambio de personaje terminó
+        if(CharacterManager.sharedInstance.isChange){
+            //Oculto los personajes para que no se vean
+            CharacterManager.sharedInstance.HiddenChangeCharacter();
+        }
+
+        else{
+            //Mientras que se de click hacia atras pero no se termine la animacion
+            //no oculta a los personajes (no cambia de pestaña hasta que termine la animacion)
+            return;
+        }
         
         if (storePanel)
         {

@@ -4333,7 +4333,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a6984d38400e0c42af3f3082b3efb3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 15
+  speed: 12.5
 --- !u!143 &1102007549
 CharacterController:
   m_ObjectHideFlags: 0
@@ -5490,9 +5490,7 @@ MonoBehaviour:
     - {fileID: 794605541482655578, guid: 33b0c3a0e296f6f458fd45948205d5e8, type: 3}
     - {fileID: 3663542151796714528, guid: bfb114f68b3dcb746870587c82489b7b, type: 3}
     - {fileID: 4503776755741816621, guid: 04eb9395518ad2145b21d925759c643e, type: 3}
-    - {fileID: 2016032493060120440, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
-    - {fileID: 3693848415660717956, guid: 29b92d4d89d60224ba6879ccb6d202a7, type: 3}
-    - {fileID: 926381930882892531, guid: 02c444078d2000000bc444078d200000, type: 3}
+    - {fileID: 926381930882892531, guid: 2851bd9975374754d88103598e73dcd1, type: 3}
     - {fileID: 3596907674210241752, guid: 83a4ea543324c6946bdf0b8c6c692ecd, type: 3}
     - {fileID: 5400577744180114185, guid: c84ab13ab121a00468c65accd6ad0838, type: 3}
     - {fileID: 4602660513870139130, guid: c7540ee473e87b24fbe132c8e59c9f5e, type: 3}
@@ -5523,8 +5521,6 @@ MonoBehaviour:
   - initTile: {fileID: 6113970321643869045, guid: 4e833ba4ce45f864fb6773ad1fb933af,
       type: 3}
     obstacleTiles:
-    - {fileID: 1437622686764940255, guid: 2ca0003e782465b4bb17cfc68934458e, type: 3}
-    - {fileID: 1437622686764940255, guid: 2ca0003e782465b4bb17cfc68934458e, type: 3}
     - {fileID: 1437622686764940255, guid: 2ca0003e782465b4bb17cfc68934458e, type: 3}
     - {fileID: 1437622686764940255, guid: 2ca0003e782465b4bb17cfc68934458e, type: 3}
     - {fileID: 1437622686764940255, guid: 2ca0003e782465b4bb17cfc68934458e, type: 3}
@@ -5570,8 +5566,6 @@ MonoBehaviour:
     - {fileID: 3833851919269604845, guid: afdfeee0e22f37e4494624ae4c90d1a6, type: 3}
     - {fileID: 9008651820458384900, guid: 1cd53e5b3b3d42548af919c4efa9ea63, type: 3}
     - {fileID: 3833851919269604845, guid: afdfeee0e22f37e4494624ae4c90d1a6, type: 3}
-    - {fileID: 9008651820458384900, guid: 1cd53e5b3b3d42548af919c4efa9ea63, type: 3}
-    - {fileID: 9008651820458384900, guid: 1cd53e5b3b3d42548af919c4efa9ea63, type: 3}
     safeTiles:
     - {fileID: 7980352263007624300, guid: bf635edfaf3801044b583ed35f1955b0, type: 3}
     straightPrefab:

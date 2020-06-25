@@ -72,14 +72,6 @@ public class CameraFollow : MonoBehaviour
             //Asignamos al transform de la camara la nueva posicion, usamos
             //el metodo Lerp() para que el movimiento sea mas suave
             transform.position = Vector3.Lerp(transform.position, newPosition, smoothSpeed * Time.deltaTime);
-            
-            //Asignamos la posicion de los limites que será igual al la del jugador
-            //quitandole el offset que se le da a la camara
-            playerLimits.position = newPosition - target.TransformDirection(offset);
-
-            //La rotacion de los limites será siempre igual al del jugador para que estén siempre
-            //a los lados del mismo. Asi evitamos los colliders en las paredes de cada prefab
-            playerLimits.rotation = target.rotation;
         }
 
         //Si el cambio de personajes está activo
@@ -93,6 +85,9 @@ public class CameraFollow : MonoBehaviour
         else if(!cameraFollow){
             transform.position = Vector3.Lerp(transform.position, startPosition, smoothSpeed * Time.deltaTime);
         }
+
+        //Siempre se actualizarán los limites
+        UpdateLimits();
     }
 
     //Asigna la posicion central de la camara para que no se pueda mover en el centro
@@ -113,5 +108,18 @@ public class CameraFollow : MonoBehaviour
         //Nos aseguramos de que la rotacion final sea a la que queremos llegar
         //despues de que se haya realizado la animación de la rotación
         transform.rotation = targetRotation;
+    }
+
+    void UpdateLimits(){
+        //Asignamos la posicion de los limites que será igual al la del jugador
+        //quitandole el offset que se le da a la camara
+        playerLimits.position = newPosition - target.TransformDirection(offset);
+        //Hace que los limites tengan la misma posicion en y que el jugador para evitar que se salga de ellos
+        //cuando caiga o si llega a saltar muy alto
+        playerLimits.position = new Vector3(playerLimits.position.x, target.position.y, playerLimits.position.z);
+
+        //La rotacion de los limites será siempre igual al del jugador para que estén siempre
+        //a los lados del mismo. Asi evitamos los colliders en las paredes de cada prefab
+        playerLimits.rotation = target.rotation;
     }
 }

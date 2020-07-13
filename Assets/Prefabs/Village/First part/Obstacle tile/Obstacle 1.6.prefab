@@ -313,6 +313,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Coins Curve
       objectReference: {fileID: 0}
+    - target: {fileID: 4774470324119474748, guid: 234c0530d366cba4d8f52597a7134b3a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 234c0530d366cba4d8f52597a7134b3a, type: 3}
 --- !u!4 &5472220917142734247 stripped

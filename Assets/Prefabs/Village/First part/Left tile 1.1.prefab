@@ -85,7 +85,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9023333744618934257}
-  - component: {fileID: 1158184656663494293}
   m_Layer: 0
   m_Name: Obstacles
   m_TagString: Obstacle
@@ -112,19 +111,6 @@ Transform:
   m_Father: {fileID: 710016223557298979}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1158184656663494293
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1750745188985576436}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 5.9997325, y: 4.975528, z: 0.94609594}
-  m_Center: {x: -0.10107255, y: 2.4998655, z: 2.85699}
 --- !u!65 &710016224244031511
 BoxCollider:
   m_ObjectHideFlags: 0

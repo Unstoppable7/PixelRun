@@ -268,6 +268,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Village-77
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 2f0f9aa4d56498748905be7dc6c27d62,
+        type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f0f9aa4d56498748905be7dc6c27d62, type: 3}
 --- !u!1 &7423831353768719779 stripped

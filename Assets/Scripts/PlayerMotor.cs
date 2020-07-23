@@ -332,9 +332,23 @@ public class PlayerMotor : MonoBehaviour
                                             (controller.bounds.center.y - controller.bounds.extents.y) + 0.2f,
                                             controller.bounds.center.z), Vector3.down);
 
+        RaycastHit hit;
         //Retornamos el resultado si el rayo toca el suelo o no
         //le damos el rayo que vamos a usar y la longitud del mismo
-        return Physics.Raycast(groundRay, 0.2f + 0.1f);
+        if(Physics.Raycast(groundRay, out hit, 0.2f + 0.1f)){
+            //Si colisiona con el hueco del agua es como si no estuviese en el suelo
+            if(hit.collider.CompareTag("Hole") && hit.collider.isTrigger){
+                return false;
+            }
+
+            //Si choca con un prefab en posicion y=0 o menor es porque está en el suelo
+            if(hit.transform.position.y <= 0){
+                return true;
+            }
+        }
+
+        //Si no choca con nada está en el aire
+        return false;
     }
 
     //Me cambia el estado del personaje a corriendo, de esta forma inicia
@@ -689,7 +703,7 @@ public class PlayerMotor : MonoBehaviour
         foreach (GameObject hole in holes)
         {
             //activa el collider de los huecos en el agua para que no se caiga
-            hole.GetComponent<BoxCollider>().enabled = true;
+            hole.GetComponent<BoxCollider>().isTrigger = false;
         }
 
         //Se guarda el color inicial del escudo

@@ -1,18 +1,49 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!65 &7980352261984417271
+--- !u!1 &7550435866249439035
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7527939972246553489}
+  - component: {fileID: 1620709271955939688}
+  m_Layer: 0
+  m_Name: Ground
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7527939972246553489
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7550435866249439035}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 7980352263007624301}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1620709271955939688
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2134148838894578937}
+  m_GameObject: {fileID: 7550435866249439035}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 5.955644, y: 0.40698433, z: 5.957417}
-  m_Center: {x: -0.09523511, y: -0.8, z: 0}
+  m_Size: {x: 5.955644, y: 0.1, z: 5.957417}
+  m_Center: {x: -0.09523511, y: -0.05, z: 0}
 --- !u!1 &7980352263007624300
 GameObject:
   m_ObjectHideFlags: 0
@@ -23,7 +54,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7980352263007624301}
   m_Layer: 0
-  m_Name: Straight tile 2
+  m_Name: Safe 3.1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43,6 +74,7 @@ Transform:
   - {fileID: 3154029193596591850}
   - {fileID: 3154029194166246108}
   - {fileID: 3154029193847971043}
+  - {fileID: 7527939972246553489}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -115,12 +147,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c2ddfddecfda3240a36b8337562a42d, type: 3}
---- !u!1 &2134148838894578937 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: 7c2ddfddecfda3240a36b8337562a42d,
-    type: 3}
-  m_PrefabInstance: {fileID: 7980352261984417264}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3154029193596591850 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 7c2ddfddecfda3240a36b8337562a42d,
@@ -217,7 +243,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: af59f359becefea4885a492fff975172,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.2
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: af59f359becefea4885a492fff975172,
         type: 3}

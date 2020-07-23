@@ -60,7 +60,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7202632252071499501}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3833851919269604844}
@@ -74,8 +74,8 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7202632252071499501}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
+  m_IsTrigger: 1
+  m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 2.5, y: 0.5, z: 6}
   m_Center: {x: 0, y: -0.25, z: 0}
@@ -253,6 +253,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Coins Straight
       objectReference: {fileID: 0}
+    - target: {fileID: 4549170356613798476, guid: fb2b791772ab30c4087ecb6744019880,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fb2b791772ab30c4087ecb6744019880, type: 3}
 --- !u!4 &4084195687638573996 stripped
@@ -276,7 +281,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: af59f359becefea4885a492fff975172,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.2
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: af59f359becefea4885a492fff975172,
         type: 3}

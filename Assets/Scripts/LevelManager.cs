@@ -312,7 +312,7 @@ public class LevelManager : MonoBehaviour
     //bool random: Nos genera la logica si se crean tiles
     //aleatorios o una secuencia prediseñada
     public void SpawnTile(bool random = true)
-    {    
+    {
         //Objeto que tendrá el tile instanciado
         GameObject tile;
 
@@ -499,6 +499,8 @@ public class LevelManager : MonoBehaviour
             //que se va a empezar a crear
             partTilesCount = 0;
         }
+
+        CollectableManager.sharedInstance.UpdateObstacleChecker(tile.transform);
     }
 
     //Metodo encargado de agregar las nuevas posiciones

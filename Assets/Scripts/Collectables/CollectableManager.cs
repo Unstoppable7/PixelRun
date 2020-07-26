@@ -7,52 +7,78 @@ public class CollectableManager : MonoBehaviour
     //Singleton
     public static CollectableManager sharedInstance { set; get; }
 
+    //Prefabs que se pueden poner en el mapa
     [Header("Collectable prefabs")]
     public GameObject coinPrefab;
     public GameObject shieldPrefab;
     public GameObject attackPrefab;
 
     [Header("Checker settings")]
+    //Transform que guarda la posición y dirección del raycast
     public Transform obstacleChecker;
 
+    //Que tan retirado del centro tiene que estar un obstáculo para
+    //que se creen las monedas hacia un lado
     [Range(0.1f, 1f)]
     public float offsetX = 0.5f;
 
+    //El suavizado de la curva en las monedas
     [Range(0.1f, 1f)]
     public float curveSmooth = 0.4f;
 
+    //La altura maxima de los obstáculos para que las monedas se creen
+    //sobre esos obstáculos
     [Range(1f, 2f)]
     public float maxObstacleHeight = 1.5f;
 
     [Header("Collectable probabilities")]
+    //Probabilidad de cada tile en que se cree monedas
     [Range(0f, 1f)]
     public float coinProbability = 0.3f;
 
+    //Probabilidad de cada tile en que se cree el escudo
     [Range(0f, 1f)]
     public float shieldProbability = 0.1f;
 
+    //Probabilidad de cada tile en que se cree el ataque
     [Range(0f, 1f)]
     public float attackProbability = 0.1f;
 
     [Header("Pattern probabilities")]
+    //Si se crea las monedas, es la probabilidad de que se cree en un obstáculo o no
     [Range(0f, 1f)]
     public float obstacleProbability = 0.5f;
 
+    //En tiles vacios, hace que se cree las monedas en linea recta o no
     [Range(0f, 1f)]
     public float straightProbability = 0.7f;
 
+    //En tiles vacios, hace que se cree las monedas en con curvas o no
     [Range(0f, 1f)]
     public float sinProbability = 0.2f;
 
     [Header("Collectable settings")]
+    //Numero de monedas que se quiere que haya por tiles
     [Range(1, 12)]
     public int collectablesPerTile = 12;
 
+    //Distancia del raycast para detectar los obstáculos, es igual al tamaño del tile para que
+    //lo cubra todo
     int rayDistance = 6;
+
+    //Distancia de separación que tendrán las monedas en los tiles, dependerá de la cantidad
+    //de monedas que se quiera por tile
     float collectableDistance;
+
+    //Nos dice si ya se creó el patron de monedas en ese tile, para que no se vuelva a crear
     bool createPattern;
+
+    //Dirección que guarda la cueva actual al momento de que se cree una curva con las monedas
+    //para que a la siguiente curva, si salen seguidas se invierte la direccion y las dos
+    //curvas queden conectadas
     int currentSinDirection = 1;
 
+    //Guarda el obstáculo del tile
     RaycastHit currentObstacle;
 
     void Awake(){
